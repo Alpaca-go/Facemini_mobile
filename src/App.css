@@ -8,8 +8,7 @@
   position: relative;
   width: 400px;
   height: 820px;
-  overflow: visible;
-  clip-path: inset(0 0 -72px 0);
+  overflow: hidden;
   background: #f6f5fb;
   color: #292733;
   font-family: var(--font-harmony);
@@ -523,7 +522,7 @@ button:focus-visible {
   left: 0;
   top: 733px;
   width: 400px;
-  height: 159px;
+  height: 87px;
   border-radius: 16px 16px 0 0;
   background: linear-gradient(180deg, rgba(97, 41, 255, 0) 0%, rgba(97, 41, 255, 0.2) 34%, rgba(97, 41, 255, 0.16) 66%, rgba(97, 41, 255, 0) 100%);
   z-index: 0;
@@ -616,6 +615,7 @@ button:focus-visible {
   z-index: 40;
   overflow: hidden;
   color: #292733;
+  animation: radial-overlay-enter 220ms ease-out both;
 }
 
 .radial-backdrop {
@@ -636,6 +636,8 @@ button:focus-visible {
   position: absolute;
   border-radius: 50%;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
 
 .radial-menu-outer {
@@ -644,6 +646,7 @@ button:focus-visible {
   width: 422px;
   height: 422px;
   background: #f6f5fb;
+  animation: radial-ring-enter 320ms cubic-bezier(0.2, 0.8, 0.2, 1) 180ms both;
 }
 
 .radial-menu-inner {
@@ -652,6 +655,7 @@ button:focus-visible {
   width: 238px;
   height: 238px;
   background: #fff;
+  animation: radial-ring-enter 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .radial-item {
@@ -667,6 +671,8 @@ button:focus-visible {
   font-size: 10px;
   font-weight: 400;
   line-height: 12px;
+  opacity: 0;
+  will-change: transform, opacity;
 }
 
 .radial-item-icon {
@@ -693,49 +699,75 @@ button:focus-visible {
   white-space: nowrap;
 }
 
+.radial-menu-inner .radial-item {
+  animation: radial-item-enter 280ms cubic-bezier(0.2, 0.8, 0.2, 1) 110ms both;
+}
+
+.radial-menu-outer .radial-item {
+  animation: radial-item-enter 320ms cubic-bezier(0.2, 0.8, 0.2, 1) 290ms both;
+}
+
 .radial-item--outer-left {
   left: 22px;
   top: 162px;
+  --radial-from-x: 159px;
+  --radial-from-y: 19px;
 }
 
 .radial-item--outer-upper-left {
   left: 53px;
   top: 78px;
+  --radial-from-x: 128px;
+  --radial-from-y: 103px;
 }
 
 .radial-item--outer-top-left {
   left: 129px;
   top: 23px;
+  --radial-from-x: 52px;
+  --radial-from-y: 158px;
 }
 
 .radial-item--outer-top-right {
   left: 233px;
   top: 23px;
+  --radial-from-x: -52px;
+  --radial-from-y: 158px;
 }
 
 .radial-item--outer-upper-right {
   left: 310px;
   top: 78px;
+  --radial-from-x: -129px;
+  --radial-from-y: 103px;
 }
 
 .radial-item--outer-right {
   left: 341px;
   top: 162px;
+  --radial-from-x: -160px;
+  --radial-from-y: 19px;
 }
 
 .radial-item--inner-top {
   left: 89px;
   top: 14px;
+  --radial-from-x: 0px;
+  --radial-from-y: 75px;
 }
 
 .radial-item--inner-left {
   left: 18px;
   top: 70px;
+  --radial-from-x: 71px;
+  --radial-from-y: 19px;
 }
 
 .radial-item--inner-right {
   left: 160px;
   top: 70px;
+  --radial-from-x: -71px;
+  --radial-from-y: 19px;
 }
 
 .radial-close-button {
@@ -754,6 +786,40 @@ button:focus-visible {
 .radial-close-button svg {
   width: 26px;
   height: 26px;
+}
+
+@keyframes radial-overlay-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes radial-ring-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.16);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes radial-item-enter {
+  from {
+    opacity: 0;
+    transform: translate(var(--radial-from-x), var(--radial-from-y)) scale(0.72);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
 }
 
 .is-model .showcase,
