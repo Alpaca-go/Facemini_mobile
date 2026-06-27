@@ -13,6 +13,7 @@ dist-ssr
 *.local
 
 # Local visual QA captures
+current-submit-button.png
 *-current.png
 *-fixed.png
 *-fixed-v*.png
