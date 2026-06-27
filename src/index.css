@@ -1,0 +1,32 @@
+:root {
+  --font-harmony: 'HarmonyOS Sans SC', 'HarmonyOS_Sans_SC', 'Microsoft YaHei', sans-serif;
+  --font-zona: 'Zona Pro', ZonaPro, 'Avenir Next', sans-serif;
+  font-family: var(--font-harmony);
+  color: #292733;
+  background: #eeeeF6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-width: 400px;
+  min-height: 820px;
+  margin: 0;
+}
+
+body {
+  background: #eeeeF6;
+}
+
+img,
+svg {
+  display: block;
+}
