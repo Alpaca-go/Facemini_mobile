@@ -1,21 +1,34 @@
 # Design QA
 
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-0b3fcfe2-29d0-4223-a75b-21e23893bb24.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Inspiration-Image.jsx`
+
+Target:
+- `http://localhost:5173/`
+- View: `tabbar -> 广场 -> 灵感广场`
+
+Round 1
+- Findings:
+- Page structure and masonry layout were missing.
+- Plaza tab in bottom nav did not switch to a dedicated view.
+- Plaza header energy pill background did not match the reference state.
+- Action:
+- Implemented dedicated `InspirationPlaza` view.
+- Wired bottom nav `广场` button to switch views.
+- Added local image assets and the two-column masonry layout.
+- Added plaza-specific header pill styling.
+
+Round 2
+- Findings:
+- Content baseline and tab text color were slightly off versus the PNG.
+- Plaza content needed tighter alignment to the reference top spacing.
+- Action:
+- Adjusted plaza top offset, grid offset, inactive tab color, and content z-index.
+- Re-ran browser capture and compared the plaza state again.
+
+Residual notes
+- Browser capture uses a wider in-app viewport, so screenshots include extra blank area around the 400x820 frame.
+- Within the 400x820 frame, the current plaza page matches the supplied PNG structure, spacing, and imagery closely enough for this iteration.
+
 final result: passed
-
-Reference states:
-- Model menu: `codex-clipboard-cbf15c99-c865-4dcd-9ea3-bdd46381c752.png`
-- Thinking menu: `codex-clipboard-474668c2-7212-4eb6-a4cd-329ad55ca6b4.png`
-- Paper references: `Model_Menu_1.jsx`, `Model_Menu_2.jsx`
-
-Round 1 findings:
-- Added model and thinking dropdown components with Paper target geometry.
-- Model dropdown uses `left: 51px`, `top: 88px`, `width: 231px`, `height: 374px`.
-- Thinking dropdown uses `left: 183px`, `top: 368px`, `width: 153px`, `height: 94px`.
-- Browser screenshot revealed a yellow focus outline on the active control that is not present in the PNG.
-
-Round 2 fixes:
-- Removed native button focus outlines to match the PNG state.
-- Confirmed production build passes after dropdown implementation.
-
-Residual notes:
-- The Codex in-app browser viewport is scaled by the desktop shell, so full 400x820 screenshots may appear cropped in local QA captures. Layout dimensions are set in CSS pixels to the provided 400x820 visual target.

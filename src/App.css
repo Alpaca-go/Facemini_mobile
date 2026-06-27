@@ -155,6 +155,95 @@
   z-index: 4;
 }
 
+.is-plaza .energy-pill {
+  background: #6129ff;
+  color: #fff;
+}
+
+.is-plaza .energy-icon {
+  filter: brightness(0) invert(1);
+}
+
+.inspiration-page {
+  position: absolute;
+  left: 16px;
+  top: 81px;
+  width: 368px;
+  height: 680px;
+  z-index: 1;
+}
+
+.inspiration-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.inspiration-heading h1 {
+  margin: 0;
+  color: #292733;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.inspiration-tabs {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  height: 24px;
+}
+
+.inspiration-tab {
+  height: 24px;
+  border-radius: 16px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #00000080;
+  font-family: var(--font-harmony);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.inspiration-tab.is-active {
+  border: 1px solid #5a2cfc;
+  color: #5a2cfc;
+  background: #f6f5fb;
+}
+
+.inspiration-grid {
+  position: absolute;
+  left: 0;
+  top: 71px;
+  width: 368px;
+  height: 610px;
+  display: flex;
+  gap: 6px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.inspiration-column {
+  width: 181px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 0 181px;
+}
+
+.inspiration-card {
+  width: 181px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+  flex: 0 0 auto;
+}
+
 .headline h1 {
   margin: 0;
   color: #292733;
@@ -523,9 +612,9 @@ button:focus-visible {
   top: 733px;
   width: 400px;
   height: 87px;
-  border-radius: 16px 16px 0 0;
-  background: linear-gradient(180deg, rgba(97, 41, 255, 0) 0%, rgba(97, 41, 255, 0.2) 34%, rgba(97, 41, 255, 0.16) 66%, rgba(97, 41, 255, 0) 100%);
-  z-index: 0;
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(41, 39, 51, 0.12) 34%, rgba(41, 39, 51, 0.08) 66%, rgba(0, 0, 0, 0) 100%);
+  z-index: 2;
   pointer-events: none;
   transition: opacity 220ms ease, transform 320ms ease;
 }
@@ -544,7 +633,7 @@ button:focus-visible {
   align-items: center;
   gap: 0;
   transition: opacity 220ms ease, transform 320ms ease;
-  z-index: 1;
+  z-index: 3;
 }
 
 .nav-item {
@@ -560,6 +649,8 @@ button:focus-visible {
 .tabbar-icon {
   width: 22px;
   height: 22px;
+  filter: brightness(0) saturate(100%) invert(14%) sepia(8%) saturate(756%) hue-rotate(207deg) brightness(96%) contrast(91%);
+  transition: filter 220ms ease;
 }
 
 .nav-item span {
@@ -574,6 +665,10 @@ button:focus-visible {
 
 .nav-item.is-active {
   color: #6129ff;
+}
+
+.nav-item.is-active .tabbar-icon {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(98%) saturate(5218%) hue-rotate(255deg) brightness(102%) contrast(102%);
 }
 
 .create-action {
