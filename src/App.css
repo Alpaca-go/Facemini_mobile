@@ -179,6 +179,7 @@
   gap: 10px;
   position: relative;
   z-index: 2;
+  transition: opacity 220ms ease, transform 280ms ease;
 }
 
 .inspiration-heading h1 {
@@ -224,8 +225,22 @@
   height: 610px;
   display: flex;
   gap: 6px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   z-index: 1;
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  transition: top 280ms ease, height 280ms ease;
+}
+
+.inspiration-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.inspiration-grid:active {
+  cursor: grabbing;
 }
 
 .inspiration-column {
@@ -243,6 +258,84 @@
   object-fit: cover;
   display: block;
   flex: 0 0 auto;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.plaza-prompt {
+  position: absolute;
+  left: 50%;
+  top: 732px;
+  width: 310px;
+  height: 60px;
+  padding: 0 8px 0 20px;
+  border: 1px solid #c6c4ce;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform: translateX(-50%) translateY(18px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 4;
+  transition: opacity 240ms ease, transform 320ms ease;
+}
+
+.plaza-prompt span {
+  color: #666;
+  font-family: var(--font-harmony);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.plaza-prompt.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.plaza-prompt-action {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ddd;
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+}
+
+.plaza-prompt-icon {
+  width: 10px;
+  height: 15px;
+  filter: brightness(0) invert(1);
+}
+
+.is-plaza-scrolled .inspiration-heading {
+  opacity: 0;
+  transform: translateY(-12px);
+  pointer-events: none;
+}
+
+.is-plaza-scrolled .inspiration-grid {
+  top: 0;
+  height: 746px;
+}
+
+.is-plaza-scrolled .bottom-nav {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(18px);
+}
+
+.is-plaza-scrolled .bottom-nav-shadow {
+  top: 771px;
+  height: 49px;
+  background: linear-gradient(180deg, rgba(246, 245, 251, 0) 0%, rgba(178, 176, 186, 0.22) 42%, rgba(178, 176, 186, 0.34) 100%);
+  z-index: 3;
 }
 
 .headline h1 {

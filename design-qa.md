@@ -32,3 +32,34 @@ Residual notes
 - Within the 400x820 frame, the current plaza page matches the supplied PNG structure, spacing, and imagery closely enough for this iteration.
 
 final result: passed
+
+## Plaza Scroll State
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-566fd218-6cf9-40b9-91f2-2d5a77cb6b0a.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Inspiration_Image_Scrolling.jsx`
+
+Round 1
+- Findings:
+- Dragging the masonry list changed `scrollTop`, but the scrolled visual state did not consistently apply.
+- The bottom prompt and tabbar fade state were therefore not visible.
+- Action:
+- Added dedicated plaza scroll-mode state and connected it to the masonry scroll interaction.
+- Added bottom prompt component and matching transition styles.
+
+Round 2
+- Findings:
+- The scrolled state appeared, but the bottom shadow treatment still differed from the reference.
+- Action:
+- Kept the short bottom shadow visible while fading only the tabbar itself.
+- Tuned the scrolled-state bottom shadow height and gradient to the Paper and PNG values.
+
+Round 3
+- Findings:
+- Needed to verify that native scroll and drag scroll both trigger the same scrolled state.
+- Needed to confirm the prompt and shadow sit on the intended 400x820 coordinates.
+- Action:
+- Bound the masonry container `onScroll` state update alongside pointer dragging.
+- Rechecked the live page in-browser: prompt `310x60`, top `732px`; shadow top `771px`; tabbar opacity `0`; heading opacity `0`.
+
+final result: passed

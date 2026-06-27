@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import './App.css'
 
 const showcaseCards = [
@@ -75,6 +75,7 @@ const radialInnerItems = [
 export default function App() {
   const [activeView, setActiveView] = useState('home')
   const [activeInspirationTab, setActiveInspirationTab] = useState(inspirationTabs[0].label)
+  const [isPlazaScrollMode, setIsPlazaScrollMode] = useState(false)
   const [isModelMode, setIsModelMode] = useState(false)
   const [activeMenu, setActiveMenu] = useState(null)
   const [isRadialMenuOpen, setIsRadialMenuOpen] = useState(false)
@@ -111,12 +112,16 @@ export default function App() {
     setActiveMenu(null)
     setIsModelMode(false)
     setIsRadialMenuOpen(false)
+    setIsPlazaScrollMode(false)
     setActiveView(view)
   }
 
   return (
     <main className="page-shell">
-      <section className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}`} aria-label="Facemini 首页">
+      <section
+        className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}${activeView === 'plaza' && isPlazaScrollMode ? ' is-plaza-scrolled' : ''}`}
+        aria-label="Facemini 首页"
+      >
         {activeView === 'home' ? <HeroBackground /> : null}
         <Header />
 
@@ -145,11 +150,12 @@ export default function App() {
             <KeyboardPanel />
           </>
         ) : (
-          <InspirationPlaza activeTab={activeInspirationTab} onSelectTab={setActiveInspirationTab} />
+          <InspirationPlaza activeTab={activeInspirationTab} onSelectTab={setActiveInspirationTab} onScrollModeChange={setIsPlazaScrollMode} />
         )}
 
         <BottomNavShadow />
         <BottomNav activeView={activeView} onChangeView={handleChangeView} onToggleRadialMenu={handleToggleRadialMenu} />
+        <PlazaPrompt visible={activeView === 'plaza' && isPlazaScrollMode} />
         {isRadialMenuOpen ? <RadialMenuOverlay onClose={() => setIsRadialMenuOpen(false)} /> : null}
       </section>
     </main>
@@ -221,7 +227,62 @@ function IntroComposer({ activeMenu, selectedModel, selectedThinking, onActivate
   )
 }
 
-function InspirationPlaza({ activeTab, onSelectTab }) {
+function InspirationPlaza({ activeTab, onSelectTab, onScrollModeChange }) {
+  const dragStateRef = useRef({
+    isDragging: false,
+    pointerId: null,
+    startY: 0,
+    startScrollTop: 0,
+  })
+
+  const handlePointerDown = (event) => {
+    if (event.pointerType === 'touch') {
+      return
+    }
+
+    dragStateRef.current = {
+      isDragging: true,
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startScrollTop: event.currentTarget.scrollTop,
+    }
+
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  const handlePointerMove = (event) => {
+    const state = dragStateRef.current
+    if (!state.isDragging || state.pointerId !== event.pointerId) {
+      return
+    }
+
+    const deltaY = event.clientY - state.startY
+    const nextScrollTop = state.startScrollTop - deltaY
+    event.currentTarget.scrollTop = nextScrollTop
+    onScrollModeChange(nextScrollTop > 24)
+    event.preventDefault()
+  }
+
+  const handlePointerEnd = (event) => {
+    const state = dragStateRef.current
+    if (state.pointerId !== event.pointerId) {
+      return
+    }
+
+    onScrollModeChange(event.currentTarget.scrollTop > 24)
+
+    dragStateRef.current = {
+      isDragging: false,
+      pointerId: null,
+      startY: 0,
+      startScrollTop: 0,
+    }
+  }
+
+  const handleScroll = (event) => {
+    onScrollModeChange(event.currentTarget.scrollTop > 24)
+  }
+
   return (
     <section className="inspiration-page" aria-label="灵感广场">
       <div className="inspiration-heading">
@@ -243,16 +304,36 @@ function InspirationPlaza({ activeTab, onSelectTab }) {
         </div>
       </div>
 
-      <div className="inspiration-grid" aria-label="灵感图片">
+      <div
+        className="inspiration-grid"
+        aria-label="灵感图片"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onLostPointerCapture={handlePointerEnd}
+        onScroll={handleScroll}
+      >
         {inspirationColumns.map((column, columnIndex) => (
           <div className="inspiration-column" key={`column-${columnIndex}`}>
             {column.map((item) => (
-              <img className="inspiration-card" key={item.src} src={item.src} alt={item.alt} />
+              <img className="inspiration-card" key={item.src} src={item.src} alt={item.alt} draggable="false" />
             ))}
           </div>
         ))}
       </div>
     </section>
+  )
+}
+
+function PlazaPrompt({ visible }) {
+  return (
+    <div className={`plaza-prompt${visible ? ' is-visible' : ''}`} aria-hidden={visible ? 'false' : 'true'}>
+      <span>释放你的创作灵感</span>
+      <button className="plaza-prompt-action" type="button" aria-label="创作">
+        <img className="plaza-prompt-icon" src="/assets/icon-header-flash.svg" alt="" />
+      </button>
+    </div>
   )
 }
 
@@ -406,94 +487,6 @@ function RadialMenuItem({ className, icon, label }) {
       <span className="radial-item-icon">{icon}</span>
       <span className="radial-item-label">{label}</span>
     </button>
-  )
-}
-
-function MenuSparkle({ x = 17, y = 5 }) {
-  return <path d={`M${x} ${y - 3}c.4 1.6 1.4 2.6 3 3-.1.1-.1.1 0 .1-1.6.4-2.6 1.4-3 3-.4-1.6-1.4-2.6-3-3 1.6-.4 2.6-1.4 3-3Z`} fill="#6129ff" />
-}
-
-function VideoSwapIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5 9.2V7.8c0-1.5 1.2-2.8 2.8-2.8h5.4C14.8 5 16 6.2 16 7.8v1.4M4.8 12.7v2.8c0 1.6 1.2 2.8 2.8 2.8h5.8c1.6 0 2.8-1.2 2.8-2.8v-2.8" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-      <path d="m16 11 4-2.8v7.6l-4-2.8" fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.5" />
-      <MenuSparkle x={18} y={4} />
-    </svg>
-  )
-}
-
-function MotionTransferIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M11.5 18.5 7.2 12.4l-1.3-1.8a2 2 0 1 1 3.3-2.3l1.3 1.8 4.3 6.1a2 2 0 1 1-3.3 2.3ZM7.2 12.4l3.3-2.3M17.7 14.2c1.8-2.3 2.2-5.1 1.1-7.4-.9-1.9-2.6-3.1-4.7-3.6M4.1 5.7c-1.4 1.8-2 4-1.7 6.1" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-      <MenuSparkle x={8} y={4} />
-    </svg>
-  )
-}
-
-function DigitalHumanIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="10.5" cy="7.2" r="3.4" fill="none" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M4.5 20.4c0-4 2.8-7 6.1-7 1.3 0 2.5.4 3.5 1.1" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-      <path d="M14.6 18.2c1.6-.3 2.8-1.5 3.1-3.1.3 1.6 1.5 2.8 3.1 3.1-1.6.3-2.8 1.5-3.1 3.1-.3-1.6-1.5-2.8-3.1-3.1Z" fill="none" stroke="#6129ff" strokeWidth="1.5" />
-      <MenuSparkle x={19} y={5} />
-    </svg>
-  )
-}
-
-function ViralTextIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 5.8h8.4c2 0 3 0 3.8.4.7.4 1.2.9 1.6 1.6.4.8.4 1.8.4 3.8v4.2M8.3 9.2h6.8M8.3 13.1h2.2M19 20.2l-1.7.8a3 3 0 0 1-2.8-.1 3.1 3.1 0 0 0-2.6-.2l-.8.3c-1.2.4-2.4-.5-2.4-1.8V16" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-      <MenuSparkle x={18} y={5} />
-    </svg>
-  )
-}
-
-function MarketingIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M16.2 4.3c-2 .6-3.6 2.2-4.2 4.2M18.8 10.4a7.1 7.1 0 1 1-5.2-5.2M15.1 12a3.1 3.1 0 1 1-3.1-3.1 3.1 3.1 0 0 1 3.1 3.1Z" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-      <path d="M17 5.2c1.5-.3 2.6-1.4 2.9-2.9.3 1.5 1.4 2.6 2.9 2.9-1.5.3-2.6 1.4-2.9 2.9-.3-1.5-1.4-2.6-2.9-2.9Z" fill="none" stroke="#6129ff" strokeWidth="1.5" />
-    </svg>
-  )
-}
-
-function AudioProcessIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M17.3 10.7a5.4 5.4 0 0 1-5.3 4.1 5.3 5.3 0 0 1-5.3-5.3V8.1a5.3 5.3 0 0 1 5.3-5.3c.9 0 1.7.2 2.4.6M4.4 16.1l.8.9a8.7 8.7 0 0 0 13.6 0l.8-.9M12 18v2.5M10 21h4" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
-      <MenuSparkle x={18} y={5} />
-    </svg>
-  )
-}
-
-function ImageGenerateIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m5.8 11.8 1.1-1.2a3.1 3.1 0 0 1 4.2-.3 3 3 0 0 0 3.6.2l2.9-1.8c.9-.6 1.8.1 1.8 1.2v2.4c0 2.2-1.2 3.4-3.4 3.4H8.7c-2.2 0-3.4-1.2-3.4-3.4V7.7c0-2.2 1.2-3.4 3.4-3.4h4.6" fill="none" stroke="#6129ff" strokeLinecap="round" strokeWidth="1.5" />
-      <path d="M18 4.6c1.3-.3 2.3-1.3 2.6-2.6.3 1.3 1.3 2.3 2.6 2.6-1.3.3-2.3 1.3-2.6 2.6-.3-1.3-1.3-2.3-2.6-2.6Z" fill="none" stroke="#6129ff" strokeWidth="1.5" />
-    </svg>
-  )
-}
-
-function ModelGenerateIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m8.8 12.1-1.7 4.8 4.8-1.7 6.8-6.8a2.1 2.1 0 0 0-3-3L8.8 12.1ZM13.8 7.3l3 3M7.1 6.1c.2 1.2 1.1 2.1 2.3 2.3-1.2.2-2.1 1.1-2.3 2.3-.2-1.2-1.1-2.1-2.3-2.3 1.2-.2 2.1-1.1 2.3-2.3Z" fill="none" stroke="#6129ff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-      <MenuSparkle x={5} y={4} />
-    </svg>
-  )
-}
-
-function VideoGenerateIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5.3 8V5.8c0-2 1.1-3.1 3.1-3.1h7.2c2 0 3.1 1.1 3.1 3.1v4.4c0 2-1.1 3.1-3.1 3.1h-2.4M13.5 7.8c-.5-.3-.9 0-.9.6v2.2c0 .6.4.9.9.6l1.8-1.1c.5-.3.5-.8 0-1.1l-1.8-1.1Z" fill="none" stroke="#6129ff" strokeLinecap="round" strokeWidth="1.5" />
-      <path d="M7.5 17.2c1.4-.3 2.5-1.4 2.8-2.8.3 1.4 1.4 2.5 2.8 2.8-1.4.3-2.5 1.4-2.8 2.8-.3-1.4-1.4-2.5-2.8-2.8Z" fill="none" stroke="#6129ff" strokeWidth="1.5" />
-    </svg>
   )
 }
 
