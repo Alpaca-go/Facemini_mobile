@@ -12,6 +12,17 @@ dist
 dist-ssr
 *.local
 
+# Local visual QA captures
+*-current.png
+*-fixed.png
+*-fixed-v*.png
+*-round-*.png
+visual-round-*.png
+reference-400.png
+model-reference-400.png
+page-full-*.png
+tabbar-current*.png
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
