@@ -251,6 +251,10 @@
   transition: top 280ms ease, height 280ms ease;
 }
 
+.inspiration-grid--video {
+  display: block;
+}
+
 .inspiration-grid::-webkit-scrollbar {
   display: none;
 }
@@ -274,6 +278,27 @@
   object-fit: cover;
   display: block;
   flex: 0 0 auto;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.inspiration-video-list {
+  width: 368px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 6px;
+}
+
+.inspiration-video-card {
+  width: 368px;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+  background: #171717;
   user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
@@ -310,6 +335,10 @@
   letter-spacing: -0.05em;
 }
 
+.plaza-generate-heading--video {
+  top: 18px;
+}
+
 .plaza-generate-fade {
   position: absolute;
   left: 0;
@@ -319,6 +348,11 @@
   background: linear-gradient(180deg, rgba(246, 245, 251, 0.98) 0%, rgba(246, 245, 251, 0) 100%);
   z-index: 2;
   pointer-events: none;
+}
+
+.plaza-generate-fade--video {
+  top: 111px;
+  height: 41px;
 }
 
 .plaza-prompt {
@@ -670,6 +704,10 @@
   padding: 0 7px;
 }
 
+.image-model-tool--video {
+  width: 126px;
+}
+
 .image-model-tool > svg:first-child {
   width: 16px;
   height: 16px;
@@ -684,9 +722,17 @@
   text-align: left;
 }
 
+.image-model-tool--video span {
+  width: 82px;
+}
+
 .image-size-tool {
   width: 91px;
   padding: 0 6px 0 7px;
+}
+
+.image-size-tool--video {
+  width: 99px;
 }
 
 .image-size-tool > svg:first-child {
@@ -701,6 +747,10 @@
   overflow: hidden;
   text-overflow: clip;
   text-align: left;
+}
+
+.image-size-tool--video span {
+  width: 56px;
 }
 
 .image-model-tool > svg:last-child,
@@ -747,6 +797,10 @@
   font-weight: 300;
   line-height: 14px;
   text-align: center;
+}
+
+.image-submit-badge--video {
+  width: 40px;
 }
 
 button {

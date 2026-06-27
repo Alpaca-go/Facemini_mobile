@@ -22,10 +22,10 @@ const navItems = [
 ]
 
 const inspirationTabs = [
-  { label: '图片灵感', width: 73 },
-  { label: '视频灵感', width: 73 },
-  { label: '数字人形象', width: 86 },
-  { label: '爆款图文', width: 72 },
+  { key: 'image', label: '图片灵感', width: 73 },
+  { key: 'video', label: '视频灵感', width: 73 },
+  { key: 'digital-human', label: '数字人形象', width: 86 },
+  { key: 'trend', label: '爆款图文', width: 72 },
 ]
 
 const inspirationImages = Array.from({ length: 18 }, (_, index) => ({
@@ -40,6 +40,11 @@ const inspirationColumns = inspirationImages.reduce(
   },
   [[], []],
 )
+
+const inspirationVideoItems = Array.from({ length: 4 }, (_, index) => ({
+  src: `/assets/video/video-${index + 1}.jpg`,
+  alt: `视频灵感 ${index + 1}`,
+}))
 
 const modelPrompts = ['指导我建立个人知识库', '给我一些关于初次创业的建议吧', '帮我提升文案的吸引力']
 
@@ -77,11 +82,14 @@ export default function App() {
   const [activeInspirationTab, setActiveInspirationTab] = useState(inspirationTabs[0].label)
   const [isPlazaScrollMode, setIsPlazaScrollMode] = useState(false)
   const [isPlazaGenerateMode, setIsPlazaGenerateMode] = useState(false)
+  const [plazaGenerateVariant, setPlazaGenerateVariant] = useState('image')
   const [isModelMode, setIsModelMode] = useState(false)
   const [activeMenu, setActiveMenu] = useState(null)
   const [isRadialMenuOpen, setIsRadialMenuOpen] = useState(false)
   const [selectedModel, setSelectedModel] = useState(modelMenuItems[0])
   const [selectedThinking, setSelectedThinking] = useState(thinkingMenuItems[1])
+
+  const isVideoInspirationTab = activeInspirationTab === inspirationTabs[1].label
 
   const handleDismissModel = () => {
     document.activeElement?.blur()
@@ -97,6 +105,7 @@ export default function App() {
     setActiveMenu(null)
     setIsModelMode(false)
     setIsPlazaGenerateMode(false)
+    setPlazaGenerateVariant('image')
     setIsRadialMenuOpen((isOpen) => !isOpen)
   }
 
@@ -116,25 +125,29 @@ export default function App() {
     setIsRadialMenuOpen(false)
     setIsPlazaScrollMode(false)
     setIsPlazaGenerateMode(false)
+    setPlazaGenerateVariant('image')
     setActiveView(view)
   }
 
-  const handleOpenPlazaGenerate = () => {
+  const handleOpenPlazaGenerate = (variant) => {
     setActiveMenu(null)
     setIsModelMode(false)
     setIsRadialMenuOpen(false)
     setActiveView('plaza')
     setIsPlazaScrollMode(true)
+    setPlazaGenerateVariant(variant ?? (isVideoInspirationTab ? 'video' : 'image'))
     setIsPlazaGenerateMode(true)
   }
 
   const handleClosePlazaGenerate = () => {
     setIsPlazaGenerateMode(false)
+    setPlazaGenerateVariant('image')
   }
 
   const handleOpenHomeComposer = () => {
     setActiveMenu(null)
     setIsPlazaGenerateMode(false)
+    setPlazaGenerateVariant('image')
     setIsPlazaScrollMode(false)
     setIsRadialMenuOpen(false)
     setActiveView('home')
@@ -172,25 +185,32 @@ export default function App() {
             <ShowcaseGrid />
             <QuickActions />
             <ModelFade />
-            <KeyboardPanel />
+            <KeyboardPanel visible={isModelMode} />
           </>
         ) : (
           <>
             <InspirationPlaza
               activeTab={activeInspirationTab}
               generateMode={isPlazaGenerateMode}
+              generateVariant={plazaGenerateVariant}
               onSelectTab={setActiveInspirationTab}
               onScrollModeChange={setIsPlazaScrollMode}
             />
-            <PlazaGenerateComposer visible={isPlazaGenerateMode} />
+            <PlazaGenerateComposer visible={isPlazaGenerateMode} variant={plazaGenerateVariant} />
             <KeyboardPanel visible={isPlazaGenerateMode} />
           </>
         )}
 
         <BottomNavShadow />
         <BottomNav activeView={activeView} onChangeView={handleChangeView} onToggleRadialMenu={handleToggleRadialMenu} />
-        <PlazaPrompt visible={activeView === 'plaza' && isPlazaScrollMode && !isPlazaGenerateMode} onActivate={handleOpenPlazaGenerate} />
-        {isRadialMenuOpen ? <RadialMenuOverlay onClose={() => setIsRadialMenuOpen(false)} onOpenImageGenerate={handleOpenHomeComposer} /> : null}
+        <PlazaPrompt visible={activeView === 'plaza' && isPlazaScrollMode && !isPlazaGenerateMode} onActivate={() => handleOpenPlazaGenerate()} />
+        {isRadialMenuOpen ? (
+          <RadialMenuOverlay
+            onClose={() => setIsRadialMenuOpen(false)}
+            onOpenImageGenerate={() => handleOpenPlazaGenerate('image')}
+            onOpenModel={handleOpenHomeComposer}
+          />
+        ) : null}
       </section>
     </main>
   )
@@ -266,8 +286,10 @@ function IntroComposer({ activeMenu, selectedModel, selectedThinking, onActivate
   )
 }
 
-function InspirationPlaza({ activeTab, generateMode, onSelectTab, onScrollModeChange }) {
+function InspirationPlaza({ activeTab, generateMode, generateVariant, onSelectTab, onScrollModeChange }) {
   const gridRef = useRef(null)
+  const isVideoTab = activeTab === inspirationTabs[1].label
+  const isVideoGenerate = generateMode && generateVariant === 'video'
   const dragStateRef = useRef({
     isDragging: false,
     pointerId: null,
@@ -332,11 +354,11 @@ function InspirationPlaza({ activeTab, generateMode, onSelectTab, onScrollModeCh
     <section className={`inspiration-page${generateMode ? ' inspiration-page--generate' : ''}`} aria-label="灵感广场">
       {generateMode ? (
         <>
-          <div className="plaza-generate-heading">
-            <h1>哇！大师，来做图啦</h1>
+          <div className={`plaza-generate-heading${isVideoGenerate ? ' plaza-generate-heading--video' : ''}`}>
+            <h1>{isVideoGenerate ? '哇！大师，来做视频啦' : '哇！大师，来做图啦'}</h1>
             <p>今天想创作什么呢?</p>
           </div>
-          <div className="plaza-generate-fade" aria-hidden="true" />
+          <div className={`plaza-generate-fade${isVideoGenerate ? ' plaza-generate-fade--video' : ''}`} aria-hidden="true" />
         </>
       ) : (
         <div className="inspiration-heading">
@@ -361,7 +383,7 @@ function InspirationPlaza({ activeTab, generateMode, onSelectTab, onScrollModeCh
 
       <div
         ref={gridRef}
-        className={`inspiration-grid${generateMode ? ' inspiration-grid--generate' : ''}`}
+        className={`inspiration-grid${generateMode ? ' inspiration-grid--generate' : ''}${isVideoTab ? ' inspiration-grid--video' : ''}`}
         aria-label="灵感图片"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -370,15 +392,29 @@ function InspirationPlaza({ activeTab, generateMode, onSelectTab, onScrollModeCh
         onLostPointerCapture={handlePointerEnd}
         onScroll={handleScroll}
       >
-        {inspirationColumns.map((column, columnIndex) => (
-          <div className="inspiration-column" key={`column-${columnIndex}`}>
-            {column.map((item) => (
-              <img className="inspiration-card" key={item.src} src={item.src} alt={item.alt} draggable="false" />
-            ))}
-          </div>
-        ))}
+        {isVideoTab ? <InspirationVideoGrid /> : <InspirationImageGrid />}
       </div>
     </section>
+  )
+}
+
+function InspirationImageGrid() {
+  return inspirationColumns.map((column, columnIndex) => (
+    <div className="inspiration-column" key={`column-${columnIndex}`}>
+      {column.map((item) => (
+        <img className="inspiration-card" key={item.src} src={item.src} alt={item.alt} draggable="false" />
+      ))}
+    </div>
+  ))
+}
+
+function InspirationVideoGrid() {
+  return (
+    <div className="inspiration-video-list">
+      {inspirationVideoItems.map((item) => (
+        <img className="inspiration-video-card" key={item.src} src={item.src} alt={item.alt} draggable="false" />
+      ))}
+    </div>
   )
 }
 
@@ -461,7 +497,9 @@ function KeyboardPanel({ visible = false }) {
   return <img className={`keyboard-panel${visible ? ' is-visible' : ''}`} src="/assets/keyboard-qwerty.jpg" alt="" />
 }
 
-function PlazaGenerateComposer({ visible }) {
+function PlazaGenerateComposer({ visible, variant }) {
+  const isVideo = variant === 'video'
+
   return (
     <section className={`plaza-generate-composer${visible ? ' is-visible' : ''}`} aria-hidden={visible ? 'false' : 'true'}>
       <textarea className="plaza-generate-input" aria-label="描述你想生成的内容" placeholder="描述你想生成的内容……" />
@@ -469,18 +507,18 @@ function PlazaGenerateComposer({ visible }) {
         <button className="square-tool" type="button" aria-label="添加">
           <PlusIcon />
         </button>
-        <button className="image-model-tool" type="button">
+        <button className={`image-model-tool${isVideo ? ' image-model-tool--video' : ''}`} type="button">
           <LayersIcon />
-          <span>GPT Image 2</span>
+          <span>{isVideo ? 'Kling 3.0 Std' : 'GPT Image 2'}</span>
           <ChevronIcon />
         </button>
-        <button className="image-size-tool" type="button">
+        <button className={`image-size-tool${isVideo ? ' image-size-tool--video' : ''}`} type="button">
           <SlidersIcon />
-          <span>1:1 | 1K</span>
+          <span>{isVideo ? '16:9 | 6s' : '1:1 | 1K'}</span>
           <ChevronIcon />
         </button>
-        <button className="image-submit-tool" type="button" aria-label="生成图片">
-          <span className="image-submit-badge">24积分</span>
+        <button className="image-submit-tool" type="button" aria-label={isVideo ? '生成视频' : '生成图片'}>
+          <span className={`image-submit-badge${isVideo ? ' image-submit-badge--video' : ''}`}>{isVideo ? '720积分' : '24积分'}</span>
           <img className="submit-tool-icon" src="/assets/icon-model-flash.svg?v=3" alt="" />
           <span className="image-submit-text">生成</span>
         </button>
@@ -544,7 +582,7 @@ function BottomNav({ activeView, onChangeView, onToggleRadialMenu }) {
   )
 }
 
-function RadialMenuOverlay({ onClose, onOpenImageGenerate }) {
+function RadialMenuOverlay({ onClose, onOpenImageGenerate, onOpenModel }) {
   return (
     <div className="radial-menu-overlay">
       <button className="radial-backdrop" type="button" aria-label="关闭菜单" onClick={onClose} />
@@ -560,7 +598,7 @@ function RadialMenuOverlay({ onClose, onOpenImageGenerate }) {
             icon={item.icon}
             key={item.label}
             label={item.label}
-            onClick={item.label === '图片生成' || item.label === '大模型' ? onOpenImageGenerate : undefined}
+            onClick={item.label === '图片生成' ? onOpenImageGenerate : item.label === '大模型' ? onOpenModel : undefined}
           />
         ))}
       </div>

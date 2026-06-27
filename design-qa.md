@@ -33,6 +33,50 @@ Residual notes
 
 final result: passed
 
+## Video Generate State
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-02040be1-419c-4039-b127-740461f1af0d.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Generate_Video.jsx`
+
+Round 1
+- Findings:
+- The plaza generate state only supported the image-generation variant.
+- In the video inspiration tab, clicking the bottom prompt still opened the image title and image-generation controls.
+- Action:
+- Added a dedicated plaza generate variant state and switched it by the active inspiration tab.
+- Implemented the video generate heading, top fade, model selector text, ratio-duration selector text, and the `720积分` badge.
+
+Round 2
+- Findings:
+- The longer video badge text needed slightly more width to avoid feeling cramped.
+- Action:
+- Added a video-specific submit badge width and rechecked the live browser result.
+
+final result: passed
+
+## Inspiration Video Tab
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-b3353eca-b078-4682-aa3b-ffa6609542e3.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Inspiration_Video.jsx`
+
+Round 1
+- Findings:
+- The plaza page only supported the image inspiration waterfall and had no dedicated video tab content.
+- Video inspiration needed a single-column 16:9 card flow instead of the two-column image masonry layout.
+- Action:
+- Added `public/assets/video/` and stored the 4 video cards as `video-1.jpg` to `video-4.jpg`.
+- Split the plaza content into image-grid and video-grid subcomponents and wired the `视频灵感` tab switch.
+
+Round 2
+- Findings:
+- The first pass matched the structure, but the video list needed a small bottom breathing space to behave more like the reference scroll area.
+- Action:
+- Added dedicated bottom padding to the video list and rechecked the live browser state.
+
+final result: passed
+
 ## Plaza Generate State
 
 Source:
