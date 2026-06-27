@@ -8,7 +8,8 @@
   position: relative;
   width: 400px;
   height: 820px;
-  overflow: hidden;
+  overflow: visible;
+  clip-path: inset(0 0 -72px 0);
   background: #f6f5fb;
   color: #292733;
   font-family: var(--font-harmony);
@@ -223,6 +224,68 @@
   gap: 6px;
 }
 
+.dropdown-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.model-dropdown {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  border: 1px solid #dddde6;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+}
+
+.model-dropdown--model {
+  left: 51px;
+  top: 88px;
+  width: 231px;
+  height: 374px;
+}
+
+.model-dropdown--thinking {
+  left: 183px;
+  top: 368px;
+  width: 153px;
+  height: 94px;
+}
+
+.dropdown-option {
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 0;
+  padding: 5px 15px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #292733;
+  font-family: var(--font-harmony);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  text-align: left;
+}
+
+.dropdown-option.is-selected {
+  background: #f2edff;
+  color: #6129ff;
+}
+
+.dropdown-option svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  color: #8f78ff;
+}
+
 .model-suggestions {
   position: absolute;
   left: 16px;
@@ -274,9 +337,15 @@
 
 button {
   border: 0;
+  outline: 0;
   padding: 0;
   font: inherit;
   background: transparent;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 0;
 }
 
 .square-tool,
@@ -326,6 +395,9 @@ button {
 
 .model-tool span {
   width: 82px;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
   text-align: left;
 }
 
@@ -343,6 +415,9 @@ button {
 
 .thinking-tool span {
   width: 58px;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
   text-align: left;
 }
 
@@ -351,6 +426,12 @@ button {
   width: 12px;
   height: 12px;
   color: #a5a7b6;
+  transition: transform 160ms ease;
+}
+
+.model-tool.is-open > svg:last-child,
+.thinking-tool.is-open > svg:last-child {
+  transform: rotate(180deg);
 }
 
 .submit-tool {
@@ -437,6 +518,19 @@ button {
   display: block;
 }
 
+.bottom-nav-shadow {
+  position: absolute;
+  left: 0;
+  top: 733px;
+  width: 400px;
+  height: 159px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, rgba(97, 41, 255, 0) 0%, rgba(97, 41, 255, 0.2) 34%, rgba(97, 41, 255, 0.16) 66%, rgba(97, 41, 255, 0) 100%);
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 320ms ease;
+}
+
 .bottom-nav {
   position: absolute;
   left: 0;
@@ -451,17 +545,7 @@ button {
   align-items: center;
   gap: 0;
   transition: opacity 220ms ease, transform 320ms ease;
-}
-
-.bottom-nav::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: -27px;
-  width: 400px;
-  height: 87px;
-  background: linear-gradient(180deg, rgba(97, 41, 255, 0) 0%, rgba(97, 41, 255, 0.2) 41%);
-  z-index: -1;
+  z-index: 1;
 }
 
 .nav-item {
@@ -526,8 +610,155 @@ button {
   height: 32px;
 }
 
+.radial-menu-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  color: #292733;
+}
+
+.radial-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  cursor: default;
+}
+
+.radial-menu-outer,
+.radial-menu-inner {
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.radial-menu-outer {
+  left: -11px;
+  top: 568px;
+  width: 422px;
+  height: 422px;
+  background: #f6f5fb;
+}
+
+.radial-menu-inner {
+  left: 81px;
+  top: 660px;
+  width: 238px;
+  height: 238px;
+  background: #fff;
+}
+
+.radial-item {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #292733;
+  font-family: var(--font-harmony);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 12px;
+}
+
+.radial-item-icon {
+  position: absolute;
+  left: 18px;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  color: #292733;
+}
+
+.radial-item-icon svg {
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+  display: block;
+}
+
+.radial-item-label {
+  position: absolute;
+  left: 50%;
+  top: 38px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.radial-item--outer-left {
+  left: 22px;
+  top: 162px;
+}
+
+.radial-item--outer-upper-left {
+  left: 53px;
+  top: 78px;
+}
+
+.radial-item--outer-top-left {
+  left: 129px;
+  top: 23px;
+}
+
+.radial-item--outer-top-right {
+  left: 233px;
+  top: 23px;
+}
+
+.radial-item--outer-upper-right {
+  left: 310px;
+  top: 78px;
+}
+
+.radial-item--outer-right {
+  left: 341px;
+  top: 162px;
+}
+
+.radial-item--inner-top {
+  left: 89px;
+  top: 14px;
+}
+
+.radial-item--inner-left {
+  left: 18px;
+  top: 70px;
+}
+
+.radial-item--inner-right {
+  left: 160px;
+  top: 70px;
+}
+
+.radial-close-button {
+  position: absolute;
+  left: 173px;
+  top: 752px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #dcd4ff;
+  color: #6129ff;
+}
+
+.radial-close-button svg {
+  width: 26px;
+  height: 26px;
+}
+
 .is-model .showcase,
 .is-model .quick-actions,
+.is-model .bottom-nav-shadow,
 .is-model .bottom-nav {
   opacity: 0;
   pointer-events: none;

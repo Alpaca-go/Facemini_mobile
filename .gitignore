@@ -23,6 +23,8 @@ reference-400.png
 model-reference-400.png
 page-full-*.png
 tabbar-current*.png
+menu-*.png
+menu-*.jpg
 
 # Editor directories and files
 .vscode/*
