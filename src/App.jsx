@@ -28,18 +28,18 @@ const inspirationTabs = [
   { label: '爆款图文', width: 72 },
 ]
 
-const inspirationColumns = [
-  [
-    { src: '/assets/inspiration-01.png', alt: '灵感图片 1', height: 296 },
-    { src: '/assets/inspiration-03.png', alt: '灵感图片 2', height: 272 },
-    { src: '/assets/inspiration-05.png', alt: '灵感图片 3', height: 322 },
-  ],
-  [
-    { src: '/assets/inspiration-02.png', alt: '灵感图片 4', height: 225 },
-    { src: '/assets/inspiration-04.png', alt: '灵感图片 5', height: 322 },
-    { src: '/assets/inspiration-06.png', alt: '灵感图片 6', height: 241 },
-  ],
-]
+const inspirationImages = Array.from({ length: 18 }, (_, index) => ({
+  src: `/assets/image/image-${index + 1}.png`,
+  alt: `灵感图片 ${index + 1}`,
+}))
+
+const inspirationColumns = inspirationImages.reduce(
+  (columns, image, index) => {
+    columns[index % 2].push(image)
+    return columns
+  },
+  [[], []],
+)
 
 const modelPrompts = ['指导我建立个人知识库', '给我一些关于初次创业的建议吧', '帮我提升文案的吸引力']
 
@@ -58,18 +58,18 @@ const modelMenuItems = [
 const thinkingMenuItems = ['标准', '深度思考']
 
 const radialOuterItems = [
-  { label: '视频换脸', className: 'radial-item--outer-left', icon: <VideoSwapIcon /> },
-  { label: '动作迁移', className: 'radial-item--outer-upper-left', icon: <MotionTransferIcon /> },
-  { label: '数字人', className: 'radial-item--outer-top-left', icon: <DigitalHumanIcon /> },
-  { label: '爆款图文', className: 'radial-item--outer-top-right', icon: <ViralTextIcon /> },
-  { label: '营销工具', className: 'radial-item--outer-upper-right', icon: <MarketingIcon /> },
-  { label: '音频处理', className: 'radial-item--outer-right', icon: <AudioProcessIcon /> },
+  { label: '视频换脸', className: 'radial-item--outer-left', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-04-faceswap.svg" alt="" /> },
+  { label: '动作迁移', className: 'radial-item--outer-upper-left', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-05-motiontrance.svg" alt="" /> },
+  { label: '数字人', className: 'radial-item--outer-top-left', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-06-digitalhuman.svg" alt="" /> },
+  { label: '爆款图文', className: 'radial-item--outer-top-right', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-07-trend.svg" alt="" /> },
+  { label: '营销工具', className: 'radial-item--outer-upper-right', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-men--08-marketing.svg" alt="" /> },
+  { label: '音频处理', className: 'radial-item--outer-right', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-09-sound.svg" alt="" /> },
 ]
 
 const radialInnerItems = [
-  { label: '图片生成', className: 'radial-item--inner-top', icon: <ImageGenerateIcon /> },
-  { label: '大模型', className: 'radial-item--inner-left', icon: <ModelGenerateIcon /> },
-  { label: '视频生成', className: 'radial-item--inner-right', icon: <VideoGenerateIcon /> },
+  { label: '图片生成', className: 'radial-item--inner-top', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-02-generateimage.svg" alt="" /> },
+  { label: '大模型', className: 'radial-item--inner-left', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-01-model.svg" alt="" /> },
+  { label: '视频生成', className: 'radial-item--inner-right', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-03-generatevideo.svg" alt="" /> },
 ]
 
 export default function App() {
@@ -247,7 +247,7 @@ function InspirationPlaza({ activeTab, onSelectTab }) {
         {inspirationColumns.map((column, columnIndex) => (
           <div className="inspiration-column" key={`column-${columnIndex}`}>
             {column.map((item) => (
-              <img className="inspiration-card" style={{ height: `${item.height}px` }} key={item.src} src={item.src} alt={item.alt} />
+              <img className="inspiration-card" key={item.src} src={item.src} alt={item.alt} />
             ))}
           </div>
         ))}

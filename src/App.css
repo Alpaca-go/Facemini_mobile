@@ -238,6 +238,7 @@
 
 .inspiration-card {
   width: 181px;
+  height: auto;
   border-radius: 6px;
   object-fit: cover;
   display: block;
@@ -783,6 +784,13 @@ button:focus-visible {
   width: 24px;
   height: 24px;
   overflow: visible;
+  display: block;
+}
+
+.radial-menu-icon-asset {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
   display: block;
 }
 
