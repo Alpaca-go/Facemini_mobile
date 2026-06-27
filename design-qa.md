@@ -33,6 +33,29 @@ Residual notes
 
 final result: passed
 
+## Plaza Generate State
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-54fd0595-677b-4c5f-9c6e-70b8051ca712.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Generate_Image.jsx`
+
+Round 1
+- Findings:
+- Clicking the plaza prompt correctly opened the generate state, but the masonry list stayed at its previous scroll position.
+- That caused the top image pair to differ from the PNG reference.
+- Action:
+- Added a dedicated `is-plaza-generate` state.
+- Implemented generate-state heading, close button, full composer, and keyboard transition.
+
+Round 2
+- Findings:
+- The main structure matched, but the image baseline still needed to reset to the intended first row.
+- Action:
+- Reset the masonry container to the top when entering the generate state.
+- Kept the plaza scroll mode active while the generate state is open so the layout does not snap back.
+
+final result: passed
+
 ## Plaza Scroll State
 
 Source:

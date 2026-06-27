@@ -76,6 +76,7 @@ export default function App() {
   const [activeView, setActiveView] = useState('home')
   const [activeInspirationTab, setActiveInspirationTab] = useState(inspirationTabs[0].label)
   const [isPlazaScrollMode, setIsPlazaScrollMode] = useState(false)
+  const [isPlazaGenerateMode, setIsPlazaGenerateMode] = useState(false)
   const [isModelMode, setIsModelMode] = useState(false)
   const [activeMenu, setActiveMenu] = useState(null)
   const [isRadialMenuOpen, setIsRadialMenuOpen] = useState(false)
@@ -95,6 +96,7 @@ export default function App() {
   const handleToggleRadialMenu = () => {
     setActiveMenu(null)
     setIsModelMode(false)
+    setIsPlazaGenerateMode(false)
     setIsRadialMenuOpen((isOpen) => !isOpen)
   }
 
@@ -113,17 +115,40 @@ export default function App() {
     setIsModelMode(false)
     setIsRadialMenuOpen(false)
     setIsPlazaScrollMode(false)
+    setIsPlazaGenerateMode(false)
     setActiveView(view)
+  }
+
+  const handleOpenPlazaGenerate = () => {
+    setActiveMenu(null)
+    setIsModelMode(false)
+    setIsRadialMenuOpen(false)
+    setActiveView('plaza')
+    setIsPlazaScrollMode(true)
+    setIsPlazaGenerateMode(true)
+  }
+
+  const handleClosePlazaGenerate = () => {
+    setIsPlazaGenerateMode(false)
+  }
+
+  const handleOpenHomeComposer = () => {
+    setActiveMenu(null)
+    setIsPlazaGenerateMode(false)
+    setIsPlazaScrollMode(false)
+    setIsRadialMenuOpen(false)
+    setActiveView('home')
+    setIsModelMode(true)
   }
 
   return (
     <main className="page-shell">
       <section
-        className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}${activeView === 'plaza' && isPlazaScrollMode ? ' is-plaza-scrolled' : ''}`}
+        className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}${activeView === 'plaza' && isPlazaScrollMode ? ' is-plaza-scrolled' : ''}${activeView === 'plaza' && isPlazaGenerateMode ? ' is-plaza-generate' : ''}`}
         aria-label="Facemini 首页"
       >
         {activeView === 'home' ? <HeroBackground /> : null}
-        <Header />
+        <Header showClose={activeView === 'plaza' && isPlazaGenerateMode} onClose={handleClosePlazaGenerate} />
 
         {activeView === 'home' ? (
           <>
@@ -150,13 +175,22 @@ export default function App() {
             <KeyboardPanel />
           </>
         ) : (
-          <InspirationPlaza activeTab={activeInspirationTab} onSelectTab={setActiveInspirationTab} onScrollModeChange={setIsPlazaScrollMode} />
+          <>
+            <InspirationPlaza
+              activeTab={activeInspirationTab}
+              generateMode={isPlazaGenerateMode}
+              onSelectTab={setActiveInspirationTab}
+              onScrollModeChange={setIsPlazaScrollMode}
+            />
+            <PlazaGenerateComposer visible={isPlazaGenerateMode} />
+            <KeyboardPanel visible={isPlazaGenerateMode} />
+          </>
         )}
 
         <BottomNavShadow />
         <BottomNav activeView={activeView} onChangeView={handleChangeView} onToggleRadialMenu={handleToggleRadialMenu} />
-        <PlazaPrompt visible={activeView === 'plaza' && isPlazaScrollMode} />
-        {isRadialMenuOpen ? <RadialMenuOverlay onClose={() => setIsRadialMenuOpen(false)} /> : null}
+        <PlazaPrompt visible={activeView === 'plaza' && isPlazaScrollMode && !isPlazaGenerateMode} onActivate={handleOpenPlazaGenerate} />
+        {isRadialMenuOpen ? <RadialMenuOverlay onClose={() => setIsRadialMenuOpen(false)} onOpenImageGenerate={handleOpenHomeComposer} /> : null}
       </section>
     </main>
   )
@@ -175,7 +209,7 @@ function HeroBackground() {
   )
 }
 
-function Header() {
+function Header({ showClose = false, onClose }) {
   return (
     <header className="header">
       <div className="brand-lockup">
@@ -189,6 +223,11 @@ function Header() {
           <span>666</span>
         </div>
         <img className="avatar" src="/assets/avatar.png" alt="用户头像" />
+        {showClose ? (
+          <button className="header-close" type="button" aria-label="关闭" onClick={onClose}>
+            <CloseIcon />
+          </button>
+        ) : null}
       </div>
     </header>
   )
@@ -227,7 +266,8 @@ function IntroComposer({ activeMenu, selectedModel, selectedThinking, onActivate
   )
 }
 
-function InspirationPlaza({ activeTab, onSelectTab, onScrollModeChange }) {
+function InspirationPlaza({ activeTab, generateMode, onSelectTab, onScrollModeChange }) {
+  const gridRef = useRef(null)
   const dragStateRef = useRef({
     isDragging: false,
     pointerId: null,
@@ -280,32 +320,48 @@ function InspirationPlaza({ activeTab, onSelectTab, onScrollModeChange }) {
   }
 
   const handleScroll = (event) => {
+    if (generateMode) {
+      onScrollModeChange(true)
+      return
+    }
+
     onScrollModeChange(event.currentTarget.scrollTop > 24)
   }
 
   return (
-    <section className="inspiration-page" aria-label="灵感广场">
-      <div className="inspiration-heading">
-        <h1>灵感广场</h1>
-        <div className="inspiration-tabs" role="tablist" aria-label="灵感分类">
-          {inspirationTabs.map((tab) => (
-            <button
-              className={`inspiration-tab${activeTab === tab.label ? ' is-active' : ''}`}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.label}
-              key={tab.label}
-              style={{ width: `${tab.width}px` }}
-              onClick={() => onSelectTab(tab.label)}
-            >
-              {tab.label}
-            </button>
-          ))}
+    <section className={`inspiration-page${generateMode ? ' inspiration-page--generate' : ''}`} aria-label="灵感广场">
+      {generateMode ? (
+        <>
+          <div className="plaza-generate-heading">
+            <h1>哇！大师，来做图啦</h1>
+            <p>今天想创作什么呢?</p>
+          </div>
+          <div className="plaza-generate-fade" aria-hidden="true" />
+        </>
+      ) : (
+        <div className="inspiration-heading">
+          <h1>灵感广场</h1>
+          <div className="inspiration-tabs" role="tablist" aria-label="灵感分类">
+            {inspirationTabs.map((tab) => (
+              <button
+                className={`inspiration-tab${activeTab === tab.label ? ' is-active' : ''}`}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.label}
+                key={tab.label}
+                style={{ width: `${tab.width}px` }}
+                onClick={() => onSelectTab(tab.label)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div
-        className="inspiration-grid"
+        ref={gridRef}
+        className={`inspiration-grid${generateMode ? ' inspiration-grid--generate' : ''}`}
         aria-label="灵感图片"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -326,14 +382,14 @@ function InspirationPlaza({ activeTab, onSelectTab, onScrollModeChange }) {
   )
 }
 
-function PlazaPrompt({ visible }) {
+function PlazaPrompt({ visible, onActivate }) {
   return (
-    <div className={`plaza-prompt${visible ? ' is-visible' : ''}`} aria-hidden={visible ? 'false' : 'true'}>
+    <button className={`plaza-prompt${visible ? ' is-visible' : ''}`} type="button" aria-hidden={visible ? 'false' : 'true'} onClick={onActivate}>
       <span>释放你的创作灵感</span>
-      <button className="plaza-prompt-action" type="button" aria-label="创作">
+      <span className="plaza-prompt-action" aria-hidden="true">
         <img className="plaza-prompt-icon" src="/assets/icon-header-flash.svg" alt="" />
-      </button>
-    </div>
+      </span>
+    </button>
   )
 }
 
@@ -401,8 +457,36 @@ function ModelFade() {
   return <div className="model-input-fade" aria-hidden="true" />
 }
 
-function KeyboardPanel() {
-  return <img className="keyboard-panel" src="/assets/keyboard-qwerty.jpg" alt="" />
+function KeyboardPanel({ visible = false }) {
+  return <img className={`keyboard-panel${visible ? ' is-visible' : ''}`} src="/assets/keyboard-qwerty.jpg" alt="" />
+}
+
+function PlazaGenerateComposer({ visible }) {
+  return (
+    <section className={`plaza-generate-composer${visible ? ' is-visible' : ''}`} aria-hidden={visible ? 'false' : 'true'}>
+      <textarea className="plaza-generate-input" aria-label="描述你想生成的内容" placeholder="描述你想生成的内容……" />
+      <div className="plaza-generate-controls">
+        <button className="square-tool" type="button" aria-label="添加">
+          <PlusIcon />
+        </button>
+        <button className="image-model-tool" type="button">
+          <LayersIcon />
+          <span>GPT Image 2</span>
+          <ChevronIcon />
+        </button>
+        <button className="image-size-tool" type="button">
+          <SlidersIcon />
+          <span>1:1 | 1K</span>
+          <ChevronIcon />
+        </button>
+        <button className="image-submit-tool" type="button" aria-label="生成图片">
+          <span className="image-submit-badge">24积分</span>
+          <img className="submit-tool-icon" src="/assets/icon-model-flash.svg?v=3" alt="" />
+          <span className="image-submit-text">生成</span>
+        </button>
+      </div>
+    </section>
+  )
 }
 
 function ShowcaseGrid() {
@@ -460,7 +544,7 @@ function BottomNav({ activeView, onChangeView, onToggleRadialMenu }) {
   )
 }
 
-function RadialMenuOverlay({ onClose }) {
+function RadialMenuOverlay({ onClose, onOpenImageGenerate }) {
   return (
     <div className="radial-menu-overlay">
       <button className="radial-backdrop" type="button" aria-label="关闭菜单" onClick={onClose} />
@@ -471,7 +555,13 @@ function RadialMenuOverlay({ onClose }) {
       </div>
       <div className="radial-menu-inner">
         {radialInnerItems.map((item) => (
-          <RadialMenuItem className={item.className} icon={item.icon} key={item.label} label={item.label} />
+          <RadialMenuItem
+            className={item.className}
+            icon={item.icon}
+            key={item.label}
+            label={item.label}
+            onClick={item.label === '图片生成' || item.label === '大模型' ? onOpenImageGenerate : undefined}
+          />
         ))}
       </div>
       <button className="radial-close-button" type="button" aria-label="关闭菜单" onClick={onClose}>
@@ -481,9 +571,9 @@ function RadialMenuOverlay({ onClose }) {
   )
 }
 
-function RadialMenuItem({ className, icon, label }) {
+function RadialMenuItem({ className, icon, label, onClick }) {
   return (
-    <button className={`radial-item ${className}`} type="button">
+    <button className={`radial-item ${className}`} type="button" onClick={onClick}>
       <span className="radial-item-icon">{icon}</span>
       <span className="radial-item-label">{label}</span>
     </button>

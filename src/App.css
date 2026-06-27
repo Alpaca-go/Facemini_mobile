@@ -118,6 +118,22 @@
   gap: 10px;
 }
 
+.header-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e9e9f0;
+  display: grid;
+  place-items: center;
+  color: #191919;
+  flex: 0 0 34px;
+}
+
+.header-close svg {
+  width: 16px;
+  height: 16px;
+}
+
 .energy-pill {
   width: 49px;
   height: 24px;
@@ -264,6 +280,47 @@
   pointer-events: none;
 }
 
+.plaza-generate-heading {
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 368px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  z-index: 3;
+}
+
+.plaza-generate-heading h1 {
+  margin: 0;
+  color: #292733;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 34px;
+  letter-spacing: -0.05em;
+}
+
+.plaza-generate-heading p {
+  margin: 0;
+  color: #292733;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 20px;
+  letter-spacing: -0.05em;
+}
+
+.plaza-generate-fade {
+  position: absolute;
+  left: 0;
+  top: 110px;
+  width: 384px;
+  height: 38px;
+  background: linear-gradient(180deg, rgba(246, 245, 251, 0.98) 0%, rgba(246, 245, 251, 0) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
 .plaza-prompt {
   position: absolute;
   left: 50%;
@@ -296,6 +353,7 @@
 .plaza-prompt.is-visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
 }
 
 .plaza-prompt-action {
@@ -336,6 +394,16 @@
   height: 49px;
   background: linear-gradient(180deg, rgba(246, 245, 251, 0) 0%, rgba(178, 176, 186, 0.22) 42%, rgba(178, 176, 186, 0.34) 100%);
   z-index: 3;
+}
+
+.is-plaza-generate .bottom-nav-shadow,
+.is-plaza-generate .plaza-prompt {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.is-plaza-generate .bottom-nav-shadow {
+  transform: translateY(20px);
 }
 
 .headline h1 {
@@ -515,6 +583,170 @@
   transform: translateY(24px);
   transition: opacity 260ms ease 120ms, transform 380ms cubic-bezier(0.22, 1, 0.36, 1) 80ms;
   z-index: 2;
+}
+
+.keyboard-panel.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  z-index: 5;
+}
+
+.plaza-generate-composer {
+  position: absolute;
+  left: 0;
+  top: 375px;
+  width: 400px;
+  height: 140px;
+  padding: 10px;
+  border: 1px solid #dddde6;
+  border-radius: 16px 16px 0 0;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(192, 172, 217, 0.35);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(18px);
+  transition: opacity 220ms ease, transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 6;
+}
+
+.plaza-generate-composer.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.plaza-generate-input {
+  width: 100%;
+  flex: 1 1 auto;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  padding: 0;
+  color: #292733;
+  font-family: var(--font-harmony);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 24px;
+}
+
+.plaza-generate-input::placeholder {
+  color: #9b96aa;
+  opacity: 1;
+}
+
+.plaza-generate-controls {
+  height: 45px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.image-model-tool,
+.image-size-tool,
+.image-submit-tool {
+  height: 34px;
+  background: #fff;
+}
+
+.image-model-tool,
+.image-size-tool {
+  border: 1px solid #e9e9f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  color: #292733;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.image-model-tool {
+  width: 126px;
+  padding: 0 7px;
+}
+
+.image-model-tool > svg:first-child {
+  width: 16px;
+  height: 16px;
+  color: #8f78ff;
+  margin-right: 7px;
+}
+
+.image-model-tool span {
+  width: 82px;
+  overflow: hidden;
+  text-overflow: clip;
+  text-align: left;
+}
+
+.image-size-tool {
+  width: 91px;
+  padding: 0 6px 0 7px;
+}
+
+.image-size-tool > svg:first-child {
+  width: 16px;
+  height: 16px;
+  color: #a5a7b6;
+  margin-right: 4px;
+}
+
+.image-size-tool span {
+  width: 48px;
+  overflow: hidden;
+  text-overflow: clip;
+  text-align: left;
+}
+
+.image-model-tool > svg:last-child,
+.image-size-tool > svg:last-child {
+  width: 12px;
+  height: 12px;
+  color: #a5a7b6;
+}
+
+.image-submit-tool {
+  position: relative;
+  width: 78px;
+  border: 1px solid #e9e9f0;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #292733;
+}
+
+.image-submit-tool .submit-tool-icon {
+  width: 9px;
+  height: 12px;
+}
+
+.image-submit-text {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.image-submit-badge {
+  position: absolute;
+  left: 50%;
+  top: -7px;
+  width: 36px;
+  height: 14px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #a66cff 25%, #5b2dff 75%);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 300;
+  line-height: 14px;
+  text-align: center;
 }
 
 button {
@@ -1057,4 +1289,15 @@ button:focus-visible {
   width: 400px;
   margin-top: 0;
   border-radius: 16px 16px 0 0;
+}
+
+.is-plaza-generate .inspiration-grid {
+  top: 114px;
+  height: 626px;
+}
+
+.is-plaza-generate .bottom-nav {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(18px);
 }
