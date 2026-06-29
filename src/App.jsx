@@ -62,6 +62,13 @@ const modelMenuItems = [
 
 const thinkingMenuItems = ['标准', '深度思考']
 
+const imageGenerateModelItems = ['GPT Image 2', 'Nano Banana Pro', 'Flux 2 Pro', 'Imagen 4 Fast', 'Seedream 4.5']
+const imageGenerateRatioItems = ['1:1', '3:4', '4:3', '9:16', '16:9']
+const imageGenerateClarityItems = ['1K', '2K', '4K']
+const videoGenerateModelItems = ['Veo 3.1 Fast', 'Veo 3.1 Lite', 'Kling 3.0 Std', 'Kling 3.0 Pro', 'Kling 3.0 4K', 'Wan 2.7 720P']
+const videoGenerateRatioItems = ['1:1', '3:4', '4:3', '9:16', '16:9']
+const videoGenerateDurationItems = ['3s', '4s', '5s', '6s', '8s', '10s', '15s']
+
 const radialOuterItems = [
   { label: '视频换脸', className: 'radial-item--outer-left', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-04-faceswap.svg" alt="" /> },
   { label: '动作迁移', className: 'radial-item--outer-upper-left', icon: <img className="radial-menu-icon-asset" src="/assets/menu/icon-menu-05-motiontrance.svg" alt="" /> },
@@ -88,6 +95,13 @@ export default function App() {
   const [isRadialMenuOpen, setIsRadialMenuOpen] = useState(false)
   const [selectedModel, setSelectedModel] = useState(modelMenuItems[0])
   const [selectedThinking, setSelectedThinking] = useState(thinkingMenuItems[1])
+  const [activeImageGenerateMenu, setActiveImageGenerateMenu] = useState(null)
+  const [selectedImageModel, setSelectedImageModel] = useState(imageGenerateModelItems[0])
+  const [selectedImageRatio, setSelectedImageRatio] = useState(imageGenerateRatioItems[0])
+  const [selectedImageClarity, setSelectedImageClarity] = useState(imageGenerateClarityItems[0])
+  const [selectedVideoModel, setSelectedVideoModel] = useState(videoGenerateModelItems[2])
+  const [selectedVideoRatio, setSelectedVideoRatio] = useState(videoGenerateRatioItems[4])
+  const [selectedVideoDuration, setSelectedVideoDuration] = useState(videoGenerateDurationItems[3])
 
   const isVideoInspirationTab = activeInspirationTab === inspirationTabs[1].label
 
@@ -106,6 +120,7 @@ export default function App() {
     setIsModelMode(false)
     setIsPlazaGenerateMode(false)
     setPlazaGenerateVariant('image')
+    setActiveImageGenerateMenu(null)
     setIsRadialMenuOpen((isOpen) => !isOpen)
   }
 
@@ -126,6 +141,7 @@ export default function App() {
     setIsPlazaScrollMode(false)
     setIsPlazaGenerateMode(false)
     setPlazaGenerateVariant('image')
+    setActiveImageGenerateMenu(null)
     setActiveView(view)
   }
 
@@ -134,14 +150,22 @@ export default function App() {
     setIsModelMode(false)
     setIsRadialMenuOpen(false)
     setActiveView('plaza')
+    if (variant === 'video') {
+      setActiveInspirationTab(inspirationTabs[1].label)
+    }
+    if (variant === 'image') {
+      setActiveInspirationTab(inspirationTabs[0].label)
+    }
     setIsPlazaScrollMode(true)
     setPlazaGenerateVariant(variant ?? (isVideoInspirationTab ? 'video' : 'image'))
+    setActiveImageGenerateMenu(null)
     setIsPlazaGenerateMode(true)
   }
 
   const handleClosePlazaGenerate = () => {
     setIsPlazaGenerateMode(false)
     setPlazaGenerateVariant('image')
+    setActiveImageGenerateMenu(null)
   }
 
   const handleOpenHomeComposer = () => {
@@ -149,9 +173,14 @@ export default function App() {
     setIsPlazaGenerateMode(false)
     setPlazaGenerateVariant('image')
     setIsPlazaScrollMode(false)
+    setActiveImageGenerateMenu(null)
     setIsRadialMenuOpen(false)
     setActiveView('home')
     setIsModelMode(true)
+  }
+
+  const handleToggleImageGenerateMenu = (menu) => {
+    setActiveImageGenerateMenu((currentMenu) => (currentMenu === menu ? null : menu))
   }
 
   return (
@@ -196,7 +225,36 @@ export default function App() {
               onSelectTab={setActiveInspirationTab}
               onScrollModeChange={setIsPlazaScrollMode}
             />
-            <PlazaGenerateComposer visible={isPlazaGenerateMode} variant={plazaGenerateVariant} />
+            <PlazaGenerateComposer
+              visible={isPlazaGenerateMode}
+              variant={plazaGenerateVariant}
+              activeMenu={activeImageGenerateMenu}
+              selectedImageModel={selectedImageModel}
+              selectedImageRatio={selectedImageRatio}
+              selectedImageClarity={selectedImageClarity}
+              selectedVideoModel={selectedVideoModel}
+              selectedVideoRatio={selectedVideoRatio}
+              selectedVideoDuration={selectedVideoDuration}
+              onToggleMenu={handleToggleImageGenerateMenu}
+            />
+            <PlazaGenerateDropdownLayer
+              visible={isPlazaGenerateMode}
+              variant={plazaGenerateVariant}
+              activeMenu={activeImageGenerateMenu}
+              selectedModel={selectedImageModel}
+              selectedRatio={selectedImageRatio}
+              selectedClarity={selectedImageClarity}
+              selectedVideoModel={selectedVideoModel}
+              selectedVideoRatio={selectedVideoRatio}
+              selectedVideoDuration={selectedVideoDuration}
+              onClose={() => setActiveImageGenerateMenu(null)}
+              onSelectModel={setSelectedImageModel}
+              onSelectRatio={setSelectedImageRatio}
+              onSelectClarity={setSelectedImageClarity}
+              onSelectVideoModel={setSelectedVideoModel}
+              onSelectVideoRatio={setSelectedVideoRatio}
+              onSelectVideoDuration={setSelectedVideoDuration}
+            />
             <KeyboardPanel visible={isPlazaGenerateMode} />
           </>
         )}
@@ -208,6 +266,7 @@ export default function App() {
           <RadialMenuOverlay
             onClose={() => setIsRadialMenuOpen(false)}
             onOpenImageGenerate={() => handleOpenPlazaGenerate('image')}
+            onOpenVideoGenerate={() => handleOpenPlazaGenerate('video')}
             onOpenModel={handleOpenHomeComposer}
           />
         ) : null}
@@ -289,6 +348,7 @@ function IntroComposer({ activeMenu, selectedModel, selectedThinking, onActivate
 function InspirationPlaza({ activeTab, generateMode, generateVariant, onSelectTab, onScrollModeChange }) {
   const gridRef = useRef(null)
   const isVideoTab = activeTab === inspirationTabs[1].label
+  const isEmptyTab = activeTab === inspirationTabs[2].label || activeTab === inspirationTabs[3].label
   const isVideoGenerate = generateMode && generateVariant === 'video'
   const dragStateRef = useRef({
     isDragging: false,
@@ -392,7 +452,7 @@ function InspirationPlaza({ activeTab, generateMode, generateVariant, onSelectTa
         onLostPointerCapture={handlePointerEnd}
         onScroll={handleScroll}
       >
-        {isVideoTab ? <InspirationVideoGrid /> : <InspirationImageGrid />}
+        {isEmptyTab ? <InspirationEmptyGrid /> : isVideoTab ? <InspirationVideoGrid /> : <InspirationImageGrid />}
       </div>
     </section>
   )
@@ -416,6 +476,10 @@ function InspirationVideoGrid() {
       ))}
     </div>
   )
+}
+
+function InspirationEmptyGrid() {
+  return <div className="inspiration-empty-grid" aria-hidden="true" />
 }
 
 function PlazaPrompt({ visible, onActivate }) {
@@ -497,7 +561,18 @@ function KeyboardPanel({ visible = false }) {
   return <img className={`keyboard-panel${visible ? ' is-visible' : ''}`} src="/assets/keyboard-qwerty.jpg" alt="" />
 }
 
-function PlazaGenerateComposer({ visible, variant }) {
+function PlazaGenerateComposer({
+  visible,
+  variant,
+  activeMenu,
+  selectedImageModel,
+  selectedImageRatio,
+  selectedImageClarity,
+  selectedVideoModel,
+  selectedVideoRatio,
+  selectedVideoDuration,
+  onToggleMenu,
+}) {
   const isVideo = variant === 'video'
 
   return (
@@ -507,14 +582,22 @@ function PlazaGenerateComposer({ visible, variant }) {
         <button className="square-tool" type="button" aria-label="添加">
           <PlusIcon />
         </button>
-        <button className={`image-model-tool${isVideo ? ' image-model-tool--video' : ''}`} type="button">
+        <button
+          className={`image-model-tool${isVideo ? ' image-model-tool--video' : ''}${activeMenu === 'model' ? ' is-open' : ''}`}
+          type="button"
+          onClick={() => onToggleMenu('model')}
+        >
           <LayersIcon />
-          <span>{isVideo ? 'Kling 3.0 Std' : 'GPT Image 2'}</span>
+          <span>{isVideo ? selectedVideoModel : selectedImageModel}</span>
           <ChevronIcon />
         </button>
-        <button className={`image-size-tool${isVideo ? ' image-size-tool--video' : ''}`} type="button">
+        <button
+          className={`image-size-tool${isVideo ? ' image-size-tool--video' : ''}${activeMenu === 'size' ? ' is-open' : ''}`}
+          type="button"
+          onClick={() => onToggleMenu('size')}
+        >
           <SlidersIcon />
-          <span>{isVideo ? '16:9 | 6s' : '1:1 | 1K'}</span>
+          <span>{isVideo ? `${selectedVideoRatio} | ${selectedVideoDuration}` : `${selectedImageRatio} | ${selectedImageClarity}`}</span>
           <ChevronIcon />
         </button>
         <button className="image-submit-tool" type="button" aria-label={isVideo ? '生成视频' : '生成图片'}>
@@ -524,6 +607,180 @@ function PlazaGenerateComposer({ visible, variant }) {
         </button>
       </div>
     </section>
+  )
+}
+
+function PlazaGenerateDropdownLayer({
+  visible,
+  variant,
+  activeMenu,
+  selectedModel,
+  selectedRatio,
+  selectedClarity,
+  selectedVideoModel,
+  selectedVideoRatio,
+  selectedVideoDuration,
+  onClose,
+  onSelectModel,
+  onSelectRatio,
+  onSelectClarity,
+  onSelectVideoModel,
+  onSelectVideoRatio,
+  onSelectVideoDuration,
+}) {
+  if (!visible || !activeMenu) {
+    return null
+  }
+
+  const isVideo = variant === 'video'
+
+  return (
+    <div className="plaza-generate-dropdown-layer" aria-hidden="false">
+      <button className="plaza-generate-dropdown-backdrop" type="button" aria-label="关闭下拉菜单" onClick={onClose} />
+      {!isVideo && activeMenu === 'model' ? (
+        <div className="plaza-generate-dropdown plaza-generate-dropdown--model">
+          {imageGenerateModelItems.map((item) => (
+            <button
+              className={`plaza-generate-option${selectedModel === item ? ' is-selected' : ''}`}
+              type="button"
+              key={item}
+              onClick={() => {
+                onSelectModel(item)
+                onClose()
+              }}
+            >
+              <span>{item}</span>
+              {selectedModel === item ? <CheckIcon /> : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {!isVideo && activeMenu === 'size' ? (
+        <ImageSizeDropdownPanel
+          selectedRatio={selectedRatio}
+          selectedClarity={selectedClarity}
+          onSelectRatio={onSelectRatio}
+          onSelectClarity={onSelectClarity}
+        />
+      ) : null}
+      {isVideo && activeMenu === 'model' ? (
+        <VideoDropdownPanel
+          className="plaza-generate-dropdown--video-model"
+          items={videoGenerateModelItems}
+          selectedItem={selectedVideoModel}
+          onSelect={(item) => {
+            onSelectVideoModel(item)
+            onClose()
+          }}
+        />
+      ) : null}
+      {isVideo && activeMenu === 'size' ? (
+        <VideoSettingDropdownPanel
+          selectedRatio={selectedVideoRatio}
+          selectedDuration={selectedVideoDuration}
+          onSelectRatio={onSelectVideoRatio}
+          onSelectDuration={onSelectVideoDuration}
+        />
+      ) : null}
+    </div>
+  )
+}
+
+function VideoDropdownPanel({ className, items, selectedItem, onSelect }) {
+  return (
+    <div className={`plaza-generate-dropdown video-generate-dropdown ${className}`}>
+      {items.map((item) => (
+        <button
+          className={`plaza-generate-option video-generate-option${selectedItem === item ? ' is-selected' : ''}`}
+          type="button"
+          key={item}
+          onClick={() => onSelect(item)}
+        >
+          <span>{item}</span>
+          {selectedItem === item ? <CheckIcon /> : null}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function VideoSettingDropdownPanel({ selectedRatio, selectedDuration, onSelectRatio, onSelectDuration }) {
+  return (
+    <div className="plaza-generate-dropdown video-setting-dropdown">
+      <div className="video-setting-section">
+        <h3>视频比例</h3>
+        <div className="video-ratio-board">
+          {videoGenerateRatioItems.map((item) => (
+            <VideoRatioOption key={item} label={item} selected={selectedRatio === item} onSelect={() => onSelectRatio(item)} />
+          ))}
+        </div>
+      </div>
+      <div className="video-setting-section video-setting-section--duration">
+        <h3>视频时长</h3>
+        <div className="video-duration-board">
+          {videoGenerateDurationItems.map((item) => (
+            <VideoDurationOption key={item} label={item} selected={selectedDuration === item} onSelect={() => onSelectDuration(item)} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function VideoRatioOption({ label, selected, onSelect }) {
+  return (
+    <button className={`video-ratio-card${selected ? ' is-selected' : ''}`} type="button" onClick={onSelect}>
+      <span className={`video-ratio-icon video-ratio-icon--${label.replace(':', '-')}`} aria-hidden="true" />
+      <span className="video-ratio-label">{label}</span>
+    </button>
+  )
+}
+
+function VideoDurationOption({ label, selected, onSelect }) {
+  return (
+    <button className={`video-duration-chip${selected ? ' is-selected' : ''}`} type="button" onClick={onSelect}>
+      {label}
+    </button>
+  )
+}
+
+function ImageSizeDropdownPanel({ selectedRatio, selectedClarity, onSelectRatio, onSelectClarity }) {
+  return (
+    <div className="plaza-generate-dropdown plaza-generate-dropdown--size">
+      <div className="size-panel-section">
+        <h3>图片比例</h3>
+        <div className="size-ratio-board">
+          {imageGenerateRatioItems.map((item) => (
+            <RatioOption key={item} label={item} selected={selectedRatio === item} onSelect={() => onSelectRatio(item)} />
+          ))}
+        </div>
+      </div>
+      <div className="size-panel-section size-panel-section--clarity">
+        <h3>清晰度</h3>
+        <div className="size-clarity-board">
+          {imageGenerateClarityItems.map((item) => (
+            <ClarityOption key={item} label={item} selected={selectedClarity === item} onSelect={() => onSelectClarity(item)} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function RatioOption({ label, selected, onSelect }) {
+  return (
+    <button className={`size-ratio-card${selected ? ' is-selected' : ''}`} type="button" onClick={onSelect}>
+      <span className={`size-ratio-icon size-ratio-icon--${label.replace(':', '-')}`} aria-hidden="true" />
+      <span className="size-ratio-label">{label}</span>
+    </button>
+  )
+}
+
+function ClarityOption({ label, selected, onSelect }) {
+  return (
+    <button className={`size-clarity-chip${selected ? ' is-selected' : ''}`} type="button" onClick={onSelect}>
+      {label}
+    </button>
   )
 }
 
@@ -582,7 +839,7 @@ function BottomNav({ activeView, onChangeView, onToggleRadialMenu }) {
   )
 }
 
-function RadialMenuOverlay({ onClose, onOpenImageGenerate, onOpenModel }) {
+function RadialMenuOverlay({ onClose, onOpenImageGenerate, onOpenVideoGenerate, onOpenModel }) {
   return (
     <div className="radial-menu-overlay">
       <button className="radial-backdrop" type="button" aria-label="关闭菜单" onClick={onClose} />
@@ -591,7 +848,28 @@ function RadialMenuOverlay({ onClose, onOpenImageGenerate, onOpenModel }) {
           <RadialMenuItem className={item.className} icon={item.icon} key={item.label} label={item.label} />
         ))}
       </div>
-      <div className="radial-menu-inner">
+      <div
+        className="radial-menu-inner"
+        onClick={(event) => {
+          const button = event.target.closest('.radial-item')
+
+          if (!button) {
+            return
+          }
+
+          if (button.classList.contains('radial-item--inner-top')) {
+            onOpenImageGenerate()
+          }
+
+          if (button.classList.contains('radial-item--inner-left')) {
+            onOpenModel()
+          }
+
+          if (button.classList.contains('radial-item--inner-right')) {
+            onOpenVideoGenerate()
+          }
+        }}
+      >
         {radialInnerItems.map((item) => (
           <RadialMenuItem
             className={item.className}

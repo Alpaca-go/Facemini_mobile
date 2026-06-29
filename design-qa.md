@@ -33,6 +33,175 @@ Residual notes
 
 final result: passed
 
+## Video Generate Setting Menu
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-5da62f82-30aa-4ff5-815c-74ff34928aab.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Generate_Video_Menu_2.jsx`
+
+Round 1
+- Findings:
+- The video generate second dropdown needed to be a wide grouped panel, not a simple list menu.
+- The menu has two independent groups: video ratio and video duration, with `16:9` and `6s` selected by default.
+- Action:
+- Rebuilt the second video dropdown as a 378x212 panel with ratio cards and duration chips.
+- Split video setting state into `selectedVideoRatio` and `selectedVideoDuration`, and updated the composer button text to use both values.
+
+Round 2
+- Findings:
+- The duration strip height needed to match the PNG more closely, and the ratio labels needed centered alignment under their icons.
+- Action:
+- Tuned the duration board to 352x36 and kept all ratio labels full-width centered.
+- Browser verification measured the panel at 378x212, ratio board at 352x91, and duration board at 352x36.
+- Verified selecting `9:16` and `10s` updates the active states without affecting the grouped panel layout.
+
+final result: passed
+
+## Video Generate Menus
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-d2f8cd4b-e217-4df4-9547-e252dd01cd85.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Generate_Video_Menu_1.jsx`
+
+Round 1
+- Findings:
+- The video generate composer buttons were not interactive.
+- The supplied PNG/Paper reference defines the video model dropdown as a six-option list at `x=51`, `y=208`, `w=231`, `h=254`, with `Kling 3.0 Std` selected by default.
+- Action:
+- Added video generate model and setting state.
+- Enabled both video composer dropdown buttons.
+- Added a video model dropdown matching the supplied geometry and selected style.
+
+Round 2
+- Findings:
+- The model menu geometry matched the reference, but non-selected text color needed to follow Paper's `#282828`.
+- The second video settings button also needed a working dropdown path.
+- Action:
+- Tuned video dropdown option color.
+- Added a video settings dropdown with selectable `16:9 / 9:16` and `6s / 10s` options.
+- Verified in-browser that selecting model and setting updates the trigger buttons and auto-closes the dropdown.
+
+final result: passed
+
+## Image Generate Size Dropdown Strict Pass
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-122f68bf-1632-46c5-a62a-670feda8b4d4.png`
+- Current comparison: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-3cb2e1fd-67d7-4ee2-ae55-5ea0174350fd.png`
+
+Round 1
+- Findings:
+- The dropdown was using the wrong geometry: it was too narrow and too tall compared with the 400px reference.
+- The correct reference panel is a wide, short panel: roughly `x=16`, `y=250`, `w=368`, `h=212`.
+- Action:
+- Rebuilt the size dropdown geometry to the wide panel.
+- Reduced the ratio section to `340x92` and the clarity section to `340x36`.
+
+Round 2
+- Findings:
+- The outer panel aligned, but the internal content sat about 5px too low.
+- The title line-height was causing the ratio board to drift downward.
+- Action:
+- Reduced the dropdown section title line-height and adjusted the clarity-section top margin.
+- Browser verification after this pass measured: panel `16/250/368/212`, ratio board `30/284/340/92`, clarity board `30/412/340/36`.
+
+final result: passed
+
+## Image Generate Size Dropdown Rebuild
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-13384ce8-48ec-492c-9a2a-50eb3ea7b0ee.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Generate_Image_Menu_1.jsx`
+
+Structure:
+- `ImageSizeDropdownPanel`: outer white floating panel.
+- `RatioOption`: five fixed ratio choices inside the `图片比例` group.
+- `ClarityOption`: three fixed clarity choices inside the `清晰度` group.
+
+Round 1
+- Findings:
+- The previous implementation shared too much of the generic dropdown styling and was not isolated as the second-menu design.
+- The outer panel radius, border/shadow, and selected-state blocks needed to match the PNG more closely.
+- Action:
+- Split the second dropdown into dedicated components.
+- Reset the panel to the Paper-style 8px radius, `#DDDDE6` border, white background, and fixed `332x276` size at `left: 34px; top: 248px`.
+
+Round 2
+- Findings:
+- The ratio group still looked slightly compressed compared with the PNG.
+- The horizontal ratio icons for `4:3`, `9:16`, and `16:9` needed larger outlines.
+- Action:
+- Increased the ratio group/card height and tightened the spacing before the clarity section.
+- Rebalanced the ratio outline dimensions while keeping the clarity section at the designed three-segment height.
+
+final result: passed
+
+## Image Generate Size Menu
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-e87bf889-516b-42b9-9f7f-df49b097075d.png`
+
+Round 1
+- Findings:
+- The image-generate second dropdown was still a plain option list and did not match the grouped `图片比例 / 清晰度` layout from the design.
+- The ratio selector needed icon outlines, fixed five-column spacing, and a separate three-segment clarity switch.
+- Action:
+- Split the image size control into two linked states: `selectedImageRatio` and `selectedImageClarity`.
+- Rebuilt the dropdown as a grouped panel with ratio cards and clarity chips, while keeping the trigger button text in the `比例 | 清晰度` format.
+
+Round 2
+- Findings:
+- The first grouped pass was structurally correct, but the panel shell, selected states, and inner spacing still needed to be closer to the PNG.
+- Action:
+- Tuned the floating panel border, shadow, padding, section spacing, ratio icon proportions, and the selected card/chip styling.
+- Rechecked the live browser state and verified that selecting `16:9` and `4K` updates the trigger button text to `16:9 | 4K`.
+
+final result: passed
+
+## Size Clarity Panel
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-e87bf889-516b-42b9-9f7f-df49b097075d.png`
+
+Round 1
+- Findings:
+- The ratio and clarity menu was still a plain text list and did not match the grouped panel in the design.
+- Action:
+- Rebuilt the second menu as a structured panel with two sections: `图片比例` and `清晰度`.
+- Added dedicated ratio cards, clarity chips, and the corresponding visual states.
+
+Round 2
+- Findings:
+- Needed to verify the grouped panel under real interaction and confirm that the second menu still updated its displayed text.
+- Action:
+- Rechecked the live browser state with the panel expanded and validated the menu text update path after changing clarity.
+
+final result: passed
+
+## Image Generate Menus
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-a9401e13-e5b0-4e99-a2c2-8b28a67821fe.png`
+- Paper reference: `C:/Users/Administrator/Desktop/Generate_Image_Menu_1.jsx`
+
+Round 1
+- Findings:
+- The image generate state did not support the two dropdown interactions.
+- `数字人形象` and `爆款图文` were still falling back to the image inspiration content.
+- Action:
+- Added dedicated menu state, selected values, and a dropdown layer for the image generate state.
+- Added an empty content container for the two unsupported plaza tabs so they stay visually blank.
+- Verified the first menu against the supplied PNG.
+
+Round 2
+- Findings:
+- The second dropdown also needed verification, and the empty plaza tabs needed confirmation that they no longer rendered reused cards.
+- Action:
+- Added and verified the size dropdown panel.
+- Checked the empty tabs in-browser and confirmed no image or video cards were rendered.
+
+final result: passed
+
 ## Video Generate State
 
 Source:
