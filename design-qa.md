@@ -33,6 +33,35 @@ Residual notes
 
 final result: passed
 
+## History Output Page
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-8151af53-711f-4394-9d21-752606d86f89.png`
+- Paper reference: `C:/Users/Administrator/Desktop/History_Output.jsx`
+
+Structure:
+- `HistoryOutputPage`: 返回栏、新创作按钮、输出流容器。
+- `history-output-block`: 文案气泡、方图结果、积分说明、操作胶囊按钮。
+- `BottomNav`: 输出页底部导航激活态。
+
+Round 1
+- Findings:
+- 需要从历史记录卡片点击进入新的输出页，而不是只停留在历史列表本身。
+- 输出页需要复用所点击历史项的文案和图片，并按 PNG 形式连续流式展示两段内容。
+- Action:
+- 新增 `history-output` 视图状态与 `selectedHistoryItem`。
+- 接入 `HistoryOutputPage`、返回按钮和三枚操作胶囊按钮。
+- 第一轮截图后确认主体结构已经贴近设计稿。
+
+Round 2
+- Findings:
+- 第一轮实现里底部 tabbar 的激活态仍然落在 `历史`，与 PNG 中 `首页` 激活不一致。
+- Action:
+- 将输出页传给 `BottomNav` 的激活态调整为 `home`，保持页面本身仍属于历史链路。
+- 再次验证点击历史卡片后能进入输出页，`返回` 按钮存在，底部激活项为 `首页`。
+
+final result: passed
+
 ## History Page
 
 Source:

@@ -13,6 +13,8 @@ const historyItems = [
     alt: '历史缩略图 2',
     prompt: '废弃工厂内，所有机器都已经生锈，只有一盏吊灯还亮着，照亮地上一张黑白照片。',
     meta: '11:04',
+    outputCount: 1,
+    inlineComposer: true,
   },
   {
     src: '/assets/history/history-3.jpg',
@@ -142,6 +144,9 @@ const radialInnerItems = [
 
 export default function App() {
   const [activeView, setActiveView] = useState('home')
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState(historyItems[0])
+  const [isHistoryOutputScrolled, setIsHistoryOutputScrolled] = useState(false)
+  const [isHistoryOutputGenerateMode, setIsHistoryOutputGenerateMode] = useState(false)
   const [activeInspirationTab, setActiveInspirationTab] = useState(inspirationTabs[0].label)
   const [isPlazaScrollMode, setIsPlazaScrollMode] = useState(false)
   const [isPlazaGenerateMode, setIsPlazaGenerateMode] = useState(false)
@@ -158,6 +163,7 @@ export default function App() {
   const [selectedVideoModel, setSelectedVideoModel] = useState(videoGenerateModelItems[2])
   const [selectedVideoRatio, setSelectedVideoRatio] = useState(videoGenerateRatioItems[4])
   const [selectedVideoDuration, setSelectedVideoDuration] = useState(videoGenerateDurationItems[3])
+  const [historyOutputGenerateShift, setHistoryOutputGenerateShift] = useState(380)
 
   const isVideoInspirationTab = activeInspirationTab === inspirationTabs[1].label
 
@@ -198,7 +204,29 @@ export default function App() {
     setIsPlazaGenerateMode(false)
     setPlazaGenerateVariant('image')
     setActiveImageGenerateMenu(null)
+    setIsHistoryOutputScrolled(false)
+    setIsHistoryOutputGenerateMode(false)
     setActiveView(view)
+  }
+
+  const handleOpenHistoryOutput = (item) => {
+    setActiveMenu(null)
+    setIsModelMode(false)
+    setIsRadialMenuOpen(false)
+    setIsPlazaScrollMode(false)
+    setIsPlazaGenerateMode(false)
+    setPlazaGenerateVariant('image')
+    setActiveImageGenerateMenu(null)
+    setSelectedHistoryItem(item)
+    setIsHistoryOutputScrolled(false)
+    setIsHistoryOutputGenerateMode(false)
+    setActiveView('history-output')
+  }
+
+  const handleBackToHistory = () => {
+    setIsHistoryOutputScrolled(false)
+    setIsHistoryOutputGenerateMode(false)
+    setActiveView('history')
   }
 
   const handleOpenPlazaGenerate = (variant) => {
@@ -243,17 +271,49 @@ export default function App() {
     setIsPlazaGenerateMode(false)
     setPlazaGenerateVariant('image')
     setActiveImageGenerateMenu(null)
+    setIsHistoryOutputScrolled(false)
+    setIsHistoryOutputGenerateMode(false)
     setActiveView('home')
+  }
+
+  const handleOpenHistoryOutputGenerate = () => {
+    setActiveImageGenerateMenu(null)
+    if (activeView === 'history-output') {
+      const outputBlocks = document.querySelectorAll('.history-output-block')
+      const lastBlock = outputBlocks[outputBlocks.length - 1]
+
+      if (lastBlock) {
+        const lastRect = lastBlock.getBoundingClientRect()
+        const composerTop = 375
+        const desiredGap = 10
+        const nextShift = Math.max(0, lastRect.bottom - composerTop + desiredGap)
+
+        setHistoryOutputGenerateShift(nextShift)
+      } else {
+        setHistoryOutputGenerateShift(380)
+      }
+    } else {
+      setHistoryOutputGenerateShift(380)
+    }
+    setIsHistoryOutputGenerateMode(true)
+  }
+
+  const handleCloseHistoryOutputGenerate = () => {
+    setActiveImageGenerateMenu(null)
+    setIsHistoryOutputGenerateMode(false)
   }
 
   const handleToggleImageGenerateMenu = (menu) => {
     setActiveImageGenerateMenu((currentMenu) => (currentMenu === menu ? null : menu))
   }
 
+  const isHistoryInlineComposer = activeView === 'history-output' && Boolean(selectedHistoryItem?.inlineComposer)
+
   return (
     <main className="page-shell">
       <section
-        className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}${activeView === 'plaza' && isPlazaScrollMode ? ' is-plaza-scrolled' : ''}${activeView === 'plaza' && isPlazaGenerateMode ? ' is-plaza-generate' : ''}${activeView === 'history' ? ' is-history' : ''}`}
+        style={{ '--history-output-generate-shift': `${historyOutputGenerateShift}px` }}
+        className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}${activeView === 'plaza' && isPlazaScrollMode ? ' is-plaza-scrolled' : ''}${activeView === 'plaza' && isPlazaGenerateMode ? ' is-plaza-generate' : ''}${activeView === 'history' || activeView === 'history-output' ? ' is-history' : ''}${isHistoryInlineComposer ? ' is-history-output-inline' : ''}${activeView === 'history-output' && isHistoryOutputScrolled ? ' is-history-output-scrolled' : ''}${activeView === 'history-output' && isHistoryOutputGenerateMode ? ' is-history-output-generate' : ''}`}
         aria-label="Facemini 首页"
       >
         {activeView === 'home' ? <HeroBackground /> : null}
@@ -325,14 +385,55 @@ export default function App() {
             <KeyboardPanel visible={isPlazaGenerateMode} />
           </>
         ) : activeView === 'history' ? (
-          <HistoryPage onCreate={handleOpenHomeComposer} />
+          <HistoryPage onCreate={handleOpenHomeComposer} onOpenItem={handleOpenHistoryOutput} />
+        ) : activeView === 'history-output' ? (
+          <>
+            {isHistoryOutputGenerateMode ? <HistoryOutputDismissZone onDismiss={handleCloseHistoryOutputGenerate} /> : null}
+            <HistoryOutputPage item={selectedHistoryItem} onBack={handleBackToHistory} onCreate={handleOpenHomeComposer} onScrollModeChange={setIsHistoryOutputScrolled} />
+            <PlazaGenerateComposer
+              visible={isHistoryInlineComposer || isHistoryOutputGenerateMode}
+              variant="image"
+              layout={isHistoryInlineComposer ? 'history-inline' : 'default'}
+              activeMenu={activeImageGenerateMenu}
+              selectedImageModel={selectedImageModel}
+              selectedImageRatio={selectedImageRatio}
+              selectedImageClarity={selectedImageClarity}
+              selectedVideoModel={selectedVideoModel}
+              selectedVideoRatio={selectedVideoRatio}
+              selectedVideoDuration={selectedVideoDuration}
+              onToggleMenu={handleToggleImageGenerateMenu}
+              onActivate={isHistoryInlineComposer ? handleOpenHistoryOutputGenerate : undefined}
+            />
+            <PlazaGenerateDropdownLayer
+              visible={isHistoryOutputGenerateMode}
+              variant="image"
+              activeMenu={activeImageGenerateMenu}
+              selectedModel={selectedImageModel}
+              selectedRatio={selectedImageRatio}
+              selectedClarity={selectedImageClarity}
+              selectedVideoModel={selectedVideoModel}
+              selectedVideoRatio={selectedVideoRatio}
+              selectedVideoDuration={selectedVideoDuration}
+              onClose={() => setActiveImageGenerateMenu(null)}
+              onSelectModel={setSelectedImageModel}
+              onSelectRatio={setSelectedImageRatio}
+              onSelectClarity={setSelectedImageClarity}
+              onSelectVideoModel={setSelectedVideoModel}
+              onSelectVideoRatio={setSelectedVideoRatio}
+              onSelectVideoDuration={setSelectedVideoDuration}
+            />
+            <KeyboardPanel visible={isHistoryOutputGenerateMode} />
+          </>
         ) : (
           <></>
         )}
 
         <BottomNavShadow />
-        <BottomNav activeView={activeView} onChangeView={handleChangeView} onToggleRadialMenu={handleToggleRadialMenu} />
-        <PlazaPrompt visible={activeView === 'plaza' && isPlazaScrollMode && !isPlazaGenerateMode} onActivate={() => handleOpenPlazaGenerate()} />
+        <BottomNav activeView={activeView === 'history-output' ? 'history' : activeView} onChangeView={handleChangeView} onToggleRadialMenu={handleToggleRadialMenu} />
+        <PlazaPrompt
+          visible={(activeView === 'plaza' && isPlazaScrollMode && !isPlazaGenerateMode) || (activeView === 'history-output' && isHistoryOutputScrolled && !isHistoryOutputGenerateMode && !isHistoryInlineComposer)}
+          onActivate={activeView === 'history-output' ? handleOpenHistoryOutputGenerate : () => handleOpenPlazaGenerate()}
+        />
         {isRadialMenuOpen ? (
           <RadialMenuOverlay
             onClose={() => setIsRadialMenuOpen(false)}
@@ -348,6 +449,10 @@ export default function App() {
 
 function ModelDismissZone({ onDismiss }) {
   return <button className="model-dismiss-zone" type="button" aria-label="返回首页状态" onPointerDown={onDismiss} />
+}
+
+function HistoryOutputDismissZone({ onDismiss }) {
+  return <button className="history-output-dismiss-zone" type="button" aria-label="收起对话框" onPointerDown={onDismiss} />
 }
 
 function HeroBackground() {
@@ -561,7 +666,7 @@ function InspirationEmptyGrid() {
   return <div className="inspiration-empty-grid" aria-hidden="true" />
 }
 
-function HistoryPage({ onCreate }) {
+function HistoryPage({ onCreate, onOpenItem }) {
   return (
     <section className="history-page" aria-label="历史记录页面">
       <div className="history-toolbar">
@@ -573,16 +678,16 @@ function HistoryPage({ onCreate }) {
       </div>
       <div className="history-list">
         {historyFeedItems.map((item) => (
-          <HistoryListItem key={item.id} item={item} />
+          <HistoryListItem key={item.id} item={item} onOpenItem={onOpenItem} />
         ))}
       </div>
     </section>
   )
 }
 
-function HistoryListItem({ item }) {
+function HistoryListItem({ item, onOpenItem }) {
   return (
-    <article className="history-card">
+    <button className="history-card" type="button" onClick={() => onOpenItem(item)}>
       <div className="history-card-thumb">
         <img src={item.src} alt={item.alt} draggable="false" />
       </div>
@@ -590,7 +695,62 @@ function HistoryListItem({ item }) {
         <p>{item.prompt}</p>
         <span>{item.meta}</span>
       </div>
-    </article>
+    </button>
+  )
+}
+
+function HistoryOutputPage({ item, onBack, onCreate, onScrollModeChange }) {
+  const outputItems = Array.from({ length: item.outputCount ?? 2 }, (_, index) => ({
+    id: `${item.meta}-${index}`,
+    prompt: item.prompt,
+    src: item.src,
+    alt: item.alt,
+  }))
+
+  return (
+    <section className="history-output-page" aria-label="历史记录输出页面">
+      <div className="history-output-toolbar">
+        <button className="history-back-button" type="button" onClick={onBack}>
+          <BackChevronIcon />
+          <span>返回</span>
+        </button>
+        <button className="history-create-button" type="button" onClick={onCreate}>
+          <PlusIcon />
+          <span>新创作</span>
+        </button>
+      </div>
+
+      <div className="history-output-list-shell">
+        <div className="history-output-list" onScroll={(event) => onScrollModeChange(event.currentTarget.scrollTop > 24)}>
+          {outputItems.map((outputItem, index) => (
+            <section className="history-output-block" key={outputItem.id}>
+              <div className="history-output-prompt">{outputItem.prompt}</div>
+              <div className="history-output-media">
+                <img src={outputItem.src} alt={outputItem.alt} draggable="false" />
+              </div>
+              <div className="history-output-actions">
+                <p>以上内容 AI 生成，本次消耗 28 积分</p>
+                <div className="history-output-action-row">
+                  <button className="history-output-chip" type="button">
+                    <DownloadIcon />
+                    <span>下载</span>
+                  </button>
+                  <button className="history-output-chip" type="button">
+                    <QuoteIcon />
+                    <span>引用</span>
+                  </button>
+                  <button className="history-output-chip" type="button">
+                    <RefreshIcon />
+                    <span>重新生成</span>
+                  </button>
+                </div>
+              </div>
+              {index === outputItems.length - 1 ? null : <div className="history-output-gap" aria-hidden="true" />}
+            </section>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -676,6 +836,7 @@ function KeyboardPanel({ visible = false }) {
 function PlazaGenerateComposer({
   visible,
   variant,
+  layout = 'default',
   activeMenu,
   selectedImageModel,
   selectedImageRatio,
@@ -684,12 +845,17 @@ function PlazaGenerateComposer({
   selectedVideoRatio,
   selectedVideoDuration,
   onToggleMenu,
+  onActivate,
 }) {
   const isVideo = variant === 'video'
 
   return (
-    <section className={`plaza-generate-composer${visible ? ' is-visible' : ''}`} aria-hidden={visible ? 'false' : 'true'}>
-      <textarea className="plaza-generate-input" aria-label="描述你想生成的内容" placeholder="描述你想生成的内容……" />
+    <section
+      className={`plaza-generate-composer${visible ? ' is-visible' : ''}${layout === 'history-inline' ? ' plaza-generate-composer--history-inline' : ''}`}
+      aria-hidden={visible ? 'false' : 'true'}
+      onPointerDown={onActivate}
+    >
+      <textarea className="plaza-generate-input" aria-label="描述你想生成的内容" placeholder="描述你想生成的内容……" onFocus={onActivate} />
       <div className="plaza-generate-controls">
         <button className="square-tool" type="button" aria-label="添加">
           <PlusIcon />
@@ -1046,6 +1212,39 @@ function ChevronIcon() {
   return (
     <svg viewBox="0 0 12 12" aria-hidden="true">
       <path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function BackChevronIcon() {
+  return (
+    <svg viewBox="0 0 10 16" aria-hidden="true">
+      <path d="M8.1 1.2 1.9 8l6.2 6.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function DownloadIcon() {
+  return (
+    <svg viewBox="0 0 18 18" aria-hidden="true">
+      <path d="M9 11.25V2.25M15.75 11.25v3a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5v-3M5.25 7.5 9 11.25l3.75-3.75" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function QuoteIcon() {
+  return (
+    <svg viewBox="0 0 18 18" aria-hidden="true">
+      <rect x="6" y="6" width="10.5" height="10.5" rx="2" ry="2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 12c-.825 0-1.5-.675-1.5-1.5V3c0-.825.675-1.5 1.5-1.5h7.5c.825 0 1.5.675 1.5 1.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function RefreshIcon() {
+  return (
+    <svg viewBox="0 0 18 18" aria-hidden="true">
+      <path d="M15.75 9A6.75 6.75 0 0 0 9 2.25a7.313 7.313 0 0 0-5.055 2.055L2.25 6M2.25 2.25V6H6M2.25 9A6.75 6.75 0 0 0 9 15.75a7.313 7.313 0 0 0 5.055-2.055L15.75 12M12 12h3.75v3.75" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
