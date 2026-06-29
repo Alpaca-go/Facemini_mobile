@@ -207,8 +207,138 @@
   color: #fff;
 }
 
-.is-plaza .energy-icon {
+.is-plaza .energy-icon,
+.is-history .energy-icon {
   filter: brightness(0) invert(1);
+}
+
+.is-history .energy-pill {
+  background: #6129ff;
+  color: #fff;
+}
+
+.history-page {
+  position: absolute;
+  left: 16px;
+  top: 81px;
+  width: 368px;
+  height: 739px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1;
+}
+
+.history-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 368px;
+  min-height: 36px;
+}
+
+.history-toolbar h1 {
+  margin: 0;
+  color: #292733;
+  font-family: var(--font-harmony);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.history-create-button {
+  min-width: 88px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #dcd4ff;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #f2edff;
+  color: #6d3cff;
+  font-family: var(--font-harmony);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.history-create-button > svg {
+  width: 16px;
+  height: 16px;
+}
+
+.history-list {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: 88px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.history-list::-webkit-scrollbar {
+  display: none;
+}
+
+.history-card {
+  width: 368px;
+  min-height: 74px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+}
+
+.history-card-thumb {
+  width: 58px;
+  height: 58px;
+  border: 1px solid #e2dfec;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.history-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.history-card-copy {
+  min-height: 58px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+}
+
+.history-card-copy p {
+  margin: 0;
+  overflow: hidden;
+  color: #555561;
+  font-family: var(--font-harmony);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 135%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.history-card-copy span {
+  color: #aaa7b6;
+  font-family: var(--font-harmony);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
 }
 
 .inspiration-page {
@@ -1368,9 +1498,9 @@ button:focus-visible {
 .bottom-nav-shadow {
   position: absolute;
   left: 0;
-  top: 733px;
+  top: 732px;
   width: 400px;
-  height: 87px;
+  height: 88px;
   border-radius: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(41, 39, 51, 0.12) 34%, rgba(41, 39, 51, 0.08) 66%, rgba(0, 0, 0, 0) 100%);
   z-index: 2;

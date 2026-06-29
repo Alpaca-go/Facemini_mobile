@@ -1,6 +1,62 @@
 import { useRef, useState } from 'react'
 import './App.css'
 
+const historyItems = [
+  {
+    src: '/assets/history/history-1.png',
+    alt: '历史缩略图 1',
+    prompt: '一个完全由玻璃制成的房间，里面下着雨，雨滴落在玻璃地板上开出一朵朵冰晶玫瑰。',
+    meta: '18:39',
+  },
+  {
+    src: '/assets/history/history-2.jpg',
+    alt: '历史缩略图 2',
+    prompt: '废弃工厂内，所有机器都已经生锈，只有一盏吊灯还亮着，照亮地上一张黑白照片。',
+    meta: '11:04',
+  },
+  {
+    src: '/assets/history/history-3.jpg',
+    alt: '历史缩略图 3',
+    prompt: '秋天的森林里，一只狐狸的尾巴扫过落叶，落叶没有落地而是飘向了空中的月亮。',
+    meta: '21:23',
+  },
+  {
+    src: '/assets/history/history-4.jpg',
+    alt: '历史缩略图 4',
+    prompt: '地下的蘑菇森林，蘑菇的菌丝连接着老式电话机，两个蘑菇之间正在传递一封手写信。',
+    meta: '21:22',
+  },
+  {
+    src: '/assets/history/history-5.jpg',
+    alt: '历史缩略图 5',
+    prompt: '河边的洗衣石上，一只青蛙穿着人类的小西装，手里拿着怀表，焦急地等待什么。',
+    meta: '21:07',
+  },
+  {
+    src: '/assets/history/history-6.jpg',
+    alt: '历史缩略图 6',
+    prompt: '古老的城堡的庭院里，一口枯井里传出钢琴声，往下看，井底有一架发光的三角钢琴。',
+    meta: '20:55',
+  },
+  {
+    src: '/assets/history/history-7.png',
+    alt: '历史缩略图 7',
+    prompt: '加两个人',
+    meta: '3 条上下文 · 20:38',
+  },
+  {
+    src: '/assets/history/history-8.svg',
+    alt: '历史缩略图 8',
+    prompt: '时尚斑马在水里吐泡泡，水下写实摄影，高级广告质感',
+    meta: '19:42',
+  },
+]
+
+const historyFeedItems = [...historyItems, ...historyItems].map((item, index) => ({
+  ...item,
+  id: `${index + 1}-${item.meta}`,
+}))
+
 const showcaseCards = [
   { className: 'showcase-card showcase-card--invite', src: '/assets/invite.png', alt: '邀请有礼' },
   { className: 'showcase-card showcase-card--image-video', src: '/assets/image-video.png', alt: '图片视频生成' },
@@ -197,7 +253,7 @@ export default function App() {
   return (
     <main className="page-shell">
       <section
-        className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}${activeView === 'plaza' && isPlazaScrollMode ? ' is-plaza-scrolled' : ''}${activeView === 'plaza' && isPlazaGenerateMode ? ' is-plaza-generate' : ''}`}
+        className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}${activeView === 'plaza' && isPlazaScrollMode ? ' is-plaza-scrolled' : ''}${activeView === 'plaza' && isPlazaGenerateMode ? ' is-plaza-generate' : ''}${activeView === 'history' ? ' is-history' : ''}`}
         aria-label="Facemini 首页"
       >
         {activeView === 'home' ? <HeroBackground /> : null}
@@ -227,7 +283,7 @@ export default function App() {
             <ModelFade />
             <KeyboardPanel visible={isModelMode} />
           </>
-        ) : (
+        ) : activeView === 'plaza' ? (
           <>
             <InspirationPlaza
               activeTab={activeInspirationTab}
@@ -268,6 +324,10 @@ export default function App() {
             />
             <KeyboardPanel visible={isPlazaGenerateMode} />
           </>
+        ) : activeView === 'history' ? (
+          <HistoryPage onCreate={handleOpenHomeComposer} />
+        ) : (
+          <></>
         )}
 
         <BottomNavShadow />
@@ -499,6 +559,39 @@ function InspirationVideoGrid() {
 
 function InspirationEmptyGrid() {
   return <div className="inspiration-empty-grid" aria-hidden="true" />
+}
+
+function HistoryPage({ onCreate }) {
+  return (
+    <section className="history-page" aria-label="历史记录页面">
+      <div className="history-toolbar">
+        <h1>历史记录</h1>
+        <button className="history-create-button" type="button" onClick={onCreate}>
+          <PlusIcon />
+          <span>新创作</span>
+        </button>
+      </div>
+      <div className="history-list">
+        {historyFeedItems.map((item) => (
+          <HistoryListItem key={item.id} item={item} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function HistoryListItem({ item }) {
+  return (
+    <article className="history-card">
+      <div className="history-card-thumb">
+        <img src={item.src} alt={item.alt} draggable="false" />
+      </div>
+      <div className="history-card-copy">
+        <p>{item.prompt}</p>
+        <span>{item.meta}</span>
+      </div>
+    </article>
+  )
 }
 
 function PlazaPrompt({ visible, onActivate }) {
@@ -849,7 +942,7 @@ function BottomNav({ activeView, onChangeView, onToggleRadialMenu }) {
       </button>
 
       {[history, profile].map((item) => (
-        <button className="nav-item" type="button" key={item.label}>
+        <button className={`nav-item${activeView === item.key ? ' is-active' : ''}`} type="button" key={item.label} onClick={() => onChangeView(item.key)}>
           <img className="tabbar-icon" src={item.iconSrc} alt="" />
           <span>{item.label}</span>
         </button>

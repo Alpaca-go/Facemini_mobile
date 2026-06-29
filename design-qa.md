@@ -33,6 +33,38 @@ Residual notes
 
 final result: passed
 
+## History Page
+
+Source:
+- PNG reference: `C:/Users/Administrator/AppData/Local/Temp/codex-clipboard-12c4d247-eac1-4f57-b557-1e856bb8f96a.png`
+- Paper reference: `C:/Users/Administrator/Desktop/History.jsx`
+
+Structure:
+- `HistoryPage`: 页面容器、标题栏、创建按钮。
+- `HistoryListItem`: 历史记录卡片缩略图、标题、时间/上下文信息。
+- `BottomNav`: 历史 tab 激活态与切换入口。
+
+Round 1
+- Findings:
+- `BottomNav` 右侧的 `历史/我的` 原本没有绑定点击，无法切换到历史页。
+- 历史页需要独立视图和本地缩略图资源，不能复用首页或广场布局。
+- Action:
+- 新增 `history` 视图分支，接入 `HistoryPage` 与 `HistoryListItem`。
+- 将 Paper 里的 7 张缩略图下载到 `public/assets/history/`，并补了第 8 张本地 placeholder 资源。
+- 第一轮截图后确认了标题、按钮、卡片结构已基本对齐，但底部露出量偏大。
+
+Round 2
+- Findings:
+- 第 8 条历史记录露出过多，和参考图相比没有被底部阴影与 tabbar 充分裁切。
+- 卡片文案在垂直方向略偏上，底部阴影 top/height 也差了约 1px。
+- Action:
+- 将历史页可视高度收紧到 651px，并让列表区域按剩余空间裁切。
+- 给文案区增加 58px 最小高度与垂直居中。
+- 将底部阴影微调为 `top: 732px`、`height: 88px`。
+- 第二轮截图复核后，历史页底部露出量与参考图一致，tabbar 历史态正常高亮。
+
+final result: passed
+
 ## Video Generate Setting Menu
 
 Source:
