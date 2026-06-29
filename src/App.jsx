@@ -179,6 +179,17 @@ export default function App() {
     setIsModelMode(true)
   }
 
+  const handleGoHome = () => {
+    setActiveMenu(null)
+    setIsModelMode(false)
+    setIsRadialMenuOpen(false)
+    setIsPlazaScrollMode(false)
+    setIsPlazaGenerateMode(false)
+    setPlazaGenerateVariant('image')
+    setActiveImageGenerateMenu(null)
+    setActiveView('home')
+  }
+
   const handleToggleImageGenerateMenu = (menu) => {
     setActiveImageGenerateMenu((currentMenu) => (currentMenu === menu ? null : menu))
   }
@@ -190,7 +201,7 @@ export default function App() {
         aria-label="Facemini 首页"
       >
         {activeView === 'home' ? <HeroBackground /> : null}
-        <Header showClose={activeView === 'plaza' && isPlazaGenerateMode} onClose={handleClosePlazaGenerate} />
+        <Header showClose={activeView === 'plaza' && isPlazaGenerateMode} onClose={handleClosePlazaGenerate} onHomeClick={handleGoHome} />
 
         {activeView === 'home' ? (
           <>
@@ -288,13 +299,21 @@ function HeroBackground() {
   )
 }
 
-function Header({ showClose = false, onClose }) {
+function Header({ showClose = false, onClose, onHomeClick }) {
   return (
     <header className="header">
-      <div className="brand-lockup">
+      <a
+        className="brand-lockup"
+        href="/"
+        aria-label="返回首页"
+        onClick={(event) => {
+          event.preventDefault()
+          onHomeClick?.()
+        }}
+      >
         <span className="brand-name">Facemini</span>
         <span className="beta-badge">Beta</span>
-      </div>
+      </a>
 
       <div className="account-area">
         <div className="energy-pill" aria-label="能量 666">
