@@ -1,3 +1,32 @@
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: url('/fonts/HarmonyOS%20Sans%20SC.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zona Pro';
+  src: url('/fonts/ZonaPro-Light.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zona Pro';
+  src: url('/fonts/ZonaPro-SemiBold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  --font-harmony: 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-zona: 'Zona Pro', 'HarmonyOS Sans SC', sans-serif;
+}
+
 .page-shell {
   min-height: 100vh;
   display: grid;
