@@ -17,13 +17,15 @@
 html,
 body,
 #root {
-  min-width: 400px;
-  min-height: 820px;
+  width: 100%;
+  min-height: 100%;
   margin: 0;
 }
 
 body {
+  min-height: 100dvh;
   background: #eeeeF6;
+  overflow-x: hidden;
 }
 
 img,

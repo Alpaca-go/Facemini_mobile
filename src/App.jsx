@@ -1,5 +1,16 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
+
+const DESIGN_WIDTH = 400
+const DESIGN_HEIGHT = 820
+
+function getViewportScale() {
+  if (typeof window === 'undefined') {
+    return 1
+  }
+
+  return Math.min(window.innerWidth / DESIGN_WIDTH, window.innerHeight / DESIGN_HEIGHT, 1)
+}
 
 const historyItems = [
   {
@@ -164,6 +175,7 @@ export default function App() {
   const [selectedVideoRatio, setSelectedVideoRatio] = useState(videoGenerateRatioItems[4])
   const [selectedVideoDuration, setSelectedVideoDuration] = useState(videoGenerateDurationItems[3])
   const [historyOutputGenerateShift, setHistoryOutputGenerateShift] = useState(380)
+  const [viewportScale, setViewportScale] = useState(getViewportScale)
 
   const isVideoInspirationTab = activeInspirationTab === inspirationTabs[1].label
 
@@ -308,11 +320,29 @@ export default function App() {
   }
 
   const isHistoryInlineComposer = activeView === 'history-output' && Boolean(selectedHistoryItem?.inlineComposer)
+  const stageWidth = DESIGN_WIDTH * viewportScale
+  const stageHeight = DESIGN_HEIGHT * viewportScale
+
+  useEffect(() => {
+    const updateViewportScale = () => {
+      setViewportScale(getViewportScale())
+    }
+
+    updateViewportScale()
+    window.addEventListener('resize', updateViewportScale)
+    window.visualViewport?.addEventListener('resize', updateViewportScale)
+
+    return () => {
+      window.removeEventListener('resize', updateViewportScale)
+      window.visualViewport?.removeEventListener('resize', updateViewportScale)
+    }
+  }, [])
 
   return (
     <main className="page-shell">
+      <div className="phone-stage" style={{ width: `${stageWidth}px`, height: `${stageHeight}px` }}>
       <section
-        style={{ '--history-output-generate-shift': `${historyOutputGenerateShift}px` }}
+        style={{ '--history-output-generate-shift': `${historyOutputGenerateShift}px`, transform: `scale(${viewportScale})` }}
         className={`phone-home${activeView === 'home' && isModelMode ? ' is-model' : ''}${activeView === 'plaza' ? ' is-plaza' : ''}${activeView === 'plaza' && isPlazaScrollMode ? ' is-plaza-scrolled' : ''}${activeView === 'plaza' && isPlazaGenerateMode ? ' is-plaza-generate' : ''}${activeView === 'history' || activeView === 'history-output' ? ' is-history' : ''}${isHistoryInlineComposer ? ' is-history-output-inline' : ''}${activeView === 'history-output' && isHistoryOutputScrolled ? ' is-history-output-scrolled' : ''}${activeView === 'history-output' && isHistoryOutputGenerateMode ? ' is-history-output-generate' : ''}`}
         aria-label="Facemini 首页"
       >
@@ -443,6 +473,7 @@ export default function App() {
           />
         ) : null}
       </section>
+      </div>
     </main>
   )
 }
